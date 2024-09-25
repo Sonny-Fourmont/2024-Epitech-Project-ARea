@@ -5,8 +5,16 @@ services:
       target: final
     ports:
       - 8000:8000
+      - 8080:8080
     env_file:
       - .env
+  frontend:
+    build:
+      context: ./google-login-app/
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3000:3000
 
 
 
