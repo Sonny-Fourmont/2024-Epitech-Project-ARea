@@ -1,0 +1,11 @@
+services:
+  server_test:
+    build:
+      context: .
+    command: ["go", "test", "-v", "./..."]
+    env_file:
+      - .env
+    environment:
+      - GIN_MODE=test
+      - DB_NAME=Test
+    restart: "no"
