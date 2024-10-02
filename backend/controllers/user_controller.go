@@ -3,6 +3,7 @@ package controllers
 import (
 	"area/models"
 	"area/storage"
+	"area/utils"
 	"context"
 	"net/http"
 	"time"
@@ -18,6 +19,9 @@ func RegisterUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
 		return
 	}
+
+	hashedPassword, _ := utils.GenerateHash(user.Password)
+	user.Password = hashedPassword
 
 	collection := storage.DB.Collection("users")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
