@@ -4,7 +4,16 @@ module.exports = {
     './public/index.html', // Include the index.html file in the public directory
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        placeholder: '#A6A39F',
+      },
+    },
+  },
+  variants: {
+    extend: {
+      placeholderColor: ['focus'],
+    },
   },
   plugins: [],
 };
