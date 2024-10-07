@@ -9,7 +9,7 @@ import (
 	"golang.org/x/oauth2/github"
 )
 
-var OauthGithub *oauth2.Config
+var GithubOauth *oauth2.Config
 var GithubToken *oauth2.Token
 
 func GithubAuth() {
@@ -17,7 +17,7 @@ func GithubAuth() {
 	clientId := os.Getenv("GITHUB_CLIENT_ID")
 	clientSecret := os.Getenv("GITHUB_CLIENT_SECRET")
 
-	OauthGithub = &oauth2.Config{
+	GithubOauth = &oauth2.Config{
 		ClientID:     clientId,
 		ClientSecret: clientSecret,
 		RedirectURL:  os.Getenv("GITHUB_REDIRECT_URI"),
