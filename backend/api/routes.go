@@ -20,8 +20,8 @@ func ServicesRoutes(router *gin.Engine) {
 	}
 	githubRoutes := router.Group("/github")
 	{
-		githubRoutes.GET("/")
-		githubRoutes.GET("/login")
+		githubRoutes.GET("/", middlewares.CheckGithubToken, controllers.GithubLoggedIn)
+		githubRoutes.GET("/login", controllers.GithubLogin)
 	}
 }
 

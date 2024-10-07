@@ -78,3 +78,17 @@ func GoogleLogin(c *gin.Context) {
 func GoogleLoggedIn(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.Token)
 }
+
+// ----- GITHUB ----- //
+func GithubLogin(c *gin.Context) {
+	utils.GithubAuth()
+	if utils.OauthGithub == nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Github OAuth configuration is not initialized"})
+	}
+	url := utils.OauthGithub.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	c.Redirect(http.StatusPermanentRedirect, url)
+}
+
+func GithubLoggedIn(c *gin.Context) {
+	c.JSON(http.StatusOK, utils.GithubToken)
+}
