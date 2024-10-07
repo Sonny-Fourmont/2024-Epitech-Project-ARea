@@ -68,15 +68,15 @@ func GetUser(c *gin.Context) {
 // ----- GOOGLE ----- //
 func GoogleLogin(c *gin.Context) {
 	utils.GoogleAuth()
-	if utils.OauthConfig == nil {
+	if utils.GoogleOauth == nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "OAuth configuration is not initialized"})
 	}
-	url := utils.OauthConfig.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	url := utils.GoogleOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 	c.Redirect(http.StatusPermanentRedirect, url)
 }
 
 func GoogleLoggedIn(c *gin.Context) {
-	c.JSON(http.StatusOK, utils.Token)
+	c.JSON(http.StatusOK, utils.GoogleToken)
 }
 
 // ----- GITHUB ----- //

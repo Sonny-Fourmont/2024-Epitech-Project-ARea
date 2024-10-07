@@ -14,10 +14,10 @@ func CheckTokenCode(c *gin.Context) {
 	if code == "" {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "code not found"})
 	}
-	if utils.OauthConfig == nil {
+	if utils.GoogleOauth == nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "OAuth configuration is not initialized"})
 	}
-	utils.Token, err = utils.OauthConfig.Exchange(context.Background(), code)
+	utils.GoogleToken, err = utils.GoogleOauth.Exchange(context.Background(), code)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to exchange code"})
 	}
