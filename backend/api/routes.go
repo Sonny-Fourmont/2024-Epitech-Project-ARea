@@ -2,9 +2,28 @@ package api
 
 import (
 	"area/controllers"
+	"area/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
+
+func ServicesRoutes(router *gin.Engine) {
+	googleRoutes := router.Group("/google")
+	{
+		googleRoutes.GET("/", middlewares.CheckTokenCode, controllers.GoogleLoggedIn)
+		googleRoutes.GET("/login", controllers.GoogleLogin)
+	}
+	microsoftRoutes := router.Group("/microsoft")
+	{
+		microsoftRoutes.GET("/")
+		microsoftRoutes.GET("/login")
+	}
+	githubRoutes := router.Group("/github")
+	{
+		githubRoutes.GET("/")
+		githubRoutes.GET("/login")
+	}
+}
 
 func RegisterRoutes(router *gin.Engine) {
 	userRoutes := router.Group("/users")
@@ -17,4 +36,9 @@ func RegisterRoutes(router *gin.Engine) {
 	{
 		areaRoutes.POST("/create", controllers.CreateAREA)
 	}
+}
+
+func InitRoutes(router *gin.Engine) {
+	RegisterRoutes(router)
+	ServicesRoutes(router)
 }
