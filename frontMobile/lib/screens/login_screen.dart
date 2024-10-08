@@ -28,6 +28,7 @@ class LoginScreenState extends State<LoginScreen> {
                 .showSnackBar(SnackBar(content: Text(state.error)));
           }
           if (state is! AuthSuccess) {
+            // Debug mode, on ignore si le backend autorise
             Navigator.pushReplacementNamed(context, '/home');
           }
         },
@@ -61,6 +62,24 @@ class LoginScreenState extends State<LoginScreen> {
                       );
                     },
                     child: const Text('Login'),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.login),
+                    onPressed: () {
+                      BlocProvider.of<AuthBloc>(context)
+                          .add(GoogleLoginEvent());
+                    },
+                    label: const Text('Google'),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.login),
+                    onPressed: () {
+                      BlocProvider.of<AuthBloc>(context)
+                          .add(GithubLoginEvent());
+                    },
+                    label: const Text('GitHub'),
                   ),
                 ],
               ),

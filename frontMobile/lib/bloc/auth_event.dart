@@ -24,3 +24,7 @@ class RegisterEvent extends AuthEvent {
   @override
   List<Object?> get props => [email, password];
 }
+
+class GoogleLoginEvent extends AuthEvent {}
+
+class GithubLoginEvent extends AuthEvent {}
