@@ -28,8 +28,8 @@ class LoginScreenState extends State<LoginScreen> {
                 .showSnackBar(SnackBar(content: Text(state.error)));
           }
 
-          // On navigue vers /home seulement si l'état est AuthSuccess
-          if (state is AuthSuccess) {
+          // A retirer le ! en prod
+          if (state is! AuthSuccess) {
             Navigator.pushReplacementNamed(context, '/home');
           }
         },
