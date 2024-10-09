@@ -4,13 +4,12 @@ import { ProviderColors } from '@/utils/providers';
 
 interface AppletCardProps {
     title: string;
-    author: string;
     isConnected: boolean;
     provider: string;
     icon: string;
 }
 
-const AppletCard: React.FC<AppletCardProps> = ({ title, author, isConnected, provider, icon }) => {
+const AppletCard: React.FC<AppletCardProps> = ({ title, isConnected, provider, icon }) => {
     return (
         <div className={`p-4 rounded-lg ${isConnected ? ProviderColors[provider] : ProviderColors['default']}`} style={{ width: '100%' }}>
             <div className="mb-4">
@@ -23,7 +22,6 @@ const AppletCard: React.FC<AppletCardProps> = ({ title, author, isConnected, pro
                 />
             </div>
             <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
-            <p className="text-sm text-white">By {author}</p>
             <div className="mt-4">
                 <p className="text-xs text-white">{isConnected ? 'Connected' : 'Not Connected'}</p>
             </div>

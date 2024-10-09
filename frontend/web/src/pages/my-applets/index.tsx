@@ -1,31 +1,29 @@
+"use client";
+
 import AppletCard from '../../views/components/AppletCard';
 
 const MyAppletsPage = () => {
     const applets = [
         {
             title: 'Send email when new tweet',
-            author: 'Kyroz',
             isConnected: true,
             provider: 'microsoft',
             icon: '/images/logos/microsoft.svg',
         },
         {
             title: 'Reddit Saved => RSS Email',
-            author: 'Kyroz',
             isConnected: true,
             provider: 'google',
             icon: '/images/logos/google.svg',
         },
         {
             title: 'Reddit Saved => RSS Email',
-            author: 'Kyroz',
             isConnected: true,
             provider: 'youtube',
             icon: '/images/logos/youtube.svg',
         },
         {
             title: 'Reddit Saved => RSS Email',
-            author: 'Kyroz',
             isConnected: false,
             provider: 'gmail',
             icon: '/images/logos/gmail.svg',
@@ -40,7 +38,6 @@ const MyAppletsPage = () => {
                     <AppletCard
                         key={index}
                         title={applet.title}
-                        author={applet.author}
                         isConnected={applet.isConnected}
                         provider={applet.provider}
                         icon={applet.icon}
