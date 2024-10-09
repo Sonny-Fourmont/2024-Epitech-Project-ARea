@@ -5,6 +5,7 @@ import (
 	"area/storage"
 	"area/utils"
 	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -12,6 +13,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/oauth2"
+	"google.golang.org/api/gmail/v1"
+	"google.golang.org/api/option"
 )
 
 func RegisterUser(c *gin.Context) {
@@ -76,6 +79,45 @@ func GoogleLogin(c *gin.Context) {
 }
 
 func GoogleLoggedIn(c *gin.Context) {
+	var user models.User
+	var tokens models.Token
+
+	httpClient := utils.GoogleOauth.Client(context.Background(), utils.GoogleToken)
+	gmail, _ := gmail.NewService(context.Background(), option.WithHTTPClient(httpClient))
+	googleUser, _ := gmail.Users.GetProfile("me").Do()
+
+	user.Username = googleUser.EmailAddress
+	user.Email = googleUser.EmailAddress
+	hashedPassword, _ := utils.GenerateHash("googleAccount")
+	user.Password = hashedPassword
+	user.Services.GoogleEmail = googleUser.EmailAddress
+	user.Services.GoogleId = primitive.NewObjectID()
+	tokens.ID = user.Services.GoogleId
+	tokens.Type = "Google"
+	tokens.RefreshToken = utils.GoogleToken.RefreshToken
+
+	collection := storage.DB.Collection("users")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := collection.InsertOne(ctx, user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		return
+	}
+	log.Output(0, "User has been created!")
+
+	collection = storage.DB.Collection("tokens")
+	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err = collection.InsertOne(ctx, tokens)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		return
+	}
+	log.Output(0, "Refresh token has been created!")
+
 	c.JSON(http.StatusOK, utils.GoogleToken)
 }
 
