@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/go-github/github"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/oauth2"
@@ -132,5 +133,48 @@ func GithubLogin(c *gin.Context) {
 }
 
 func GithubLoggedIn(c *gin.Context) {
+	var user models.User
+	var tokens models.Token
+
+	httpClient := utils.GithubOauth.Client(context.Background(), utils.GithubToken)
+	githubClient := github.NewClient(httpClient)
+	userInfo, _, err := githubClient.Users.Get(c, "")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		return
+	}
+
+	user.ID = primitive.NewObjectID()
+	user.Username = *userInfo.Name
+	user.Email = *userInfo.Email
+	hashedPassword, _ := utils.GenerateHash("githubAccount")
+	user.Password = hashedPassword
+	user.Services.GithubEmail = *userInfo.Email
+	tokens.ID = user.ID
+	tokens.Type = "Github"
+	tokens.Tokens = utils.GithubToken
+
+	collection := storage.DB.Collection("users")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err = collection.InsertOne(ctx, user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		return
+	}
+	log.Output(0, "User has been created!")
+
+	collection = storage.DB.Collection("tokens")
+	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err = collection.InsertOne(ctx, tokens)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		return
+	}
+	log.Output(0, "Token has been created!")
+
 	c.JSON(http.StatusOK, utils.GithubToken)
 }
