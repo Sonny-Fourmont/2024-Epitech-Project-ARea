@@ -38,7 +38,16 @@ func RegisterRoutes(router *gin.Engine) {
 	}
 }
 
+func AppletRoutes(router *gin.Engine) {
+	userRoutes := router.Group("/applet")
+	{
+		userRoutes.POST("/", controllers.AddApplet)
+		userRoutes.GET("/", controllers.GetApplets)
+	}
+}
+
 func InitRoutes(router *gin.Engine) {
 	RegisterRoutes(router)
 	ServicesRoutes(router)
+	AppletRoutes(router)
 }
