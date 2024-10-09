@@ -95,7 +95,7 @@ func GoogleLoggedIn(c *gin.Context) {
 	user.Services.GoogleEmail = googleUser.EmailAddress
 	tokens.ID = user.ID
 	tokens.Type = "Google"
-	tokens.Tokens = utils.GoogleToken
+	tokens.TokenData = utils.GoogleToken
 
 	collection := storage.DB.Collection("users")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -152,7 +152,7 @@ func GithubLoggedIn(c *gin.Context) {
 	user.Services.GithubEmail = *userInfo.Email
 	tokens.ID = user.ID
 	tokens.Type = "Github"
-	tokens.Tokens = utils.GithubToken
+	tokens.TokenData = utils.GithubToken
 
 	collection := storage.DB.Collection("users")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
