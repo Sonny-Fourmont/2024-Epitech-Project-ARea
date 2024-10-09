@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"golang.org/x/oauth2"
 )
 
 func RegisterUser(c *gin.Context) {
@@ -62,4 +63,32 @@ func GetUser(c *gin.Context) {
 		"username": user.Username,
 		"email":    user.Email,
 	})
+}
+
+// ----- GOOGLE ----- //
+func GoogleLogin(c *gin.Context) {
+	utils.GoogleAuth()
+	if utils.GoogleOauth == nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "OAuth configuration is not initialized"})
+	}
+	url := utils.GoogleOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	c.Redirect(http.StatusPermanentRedirect, url)
+}
+
+func GoogleLoggedIn(c *gin.Context) {
+	c.JSON(http.StatusOK, utils.GoogleToken)
+}
+
+// ----- GITHUB ----- //
+func GithubLogin(c *gin.Context) {
+	utils.GithubAuth()
+	if utils.GithubOauth == nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "OAuth configuration is not initialized"})
+	}
+	url := utils.GithubOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	c.Redirect(http.StatusPermanentRedirect, url)
+}
+
+func GithubLoggedIn(c *gin.Context) {
+	c.JSON(http.StatusOK, utils.GithubToken)
 }
