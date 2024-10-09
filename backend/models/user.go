@@ -7,12 +7,9 @@ import (
 )
 
 type Services struct {
-	GoogleEmail    string             `bson:"google_email,omitempty"`
-	GoogleId       primitive.ObjectID `bson:"google_id,omitempty"`
-	GithubEmail    string             `bson:"github_email,omitempty"`
-	GithubId       primitive.ObjectID `bson:"github_id,omitempty"`
-	MicrosoftEmail string             `bson:"microsoft_email,omitempty"`
-	MicrosoftId    primitive.ObjectID `bson:"microsoft_id,omitempty"`
+	GoogleEmail    string `bson:"google_email,omitempty"`
+	GithubEmail    string `bson:"github_email,omitempty"`
+	MicrosoftEmail string `bson:"microsoft_email,omitempty"`
 }
 
 type User struct {
@@ -23,5 +20,4 @@ type User struct {
 	Email     string             `bson:"email" gorm:"unique"`
 	Password  string             `bson:"password"`
 	Services  Services           `bson:"services"`
-	AppletId  primitive.ObjectID `bson:"applet_id,omitempty"`
 }
