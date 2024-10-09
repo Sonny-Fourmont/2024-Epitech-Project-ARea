@@ -27,8 +27,9 @@ class LoginScreenState extends State<LoginScreen> {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(state.error)));
           }
-          if (state is! AuthSuccess) {
-            // Debug mode, on ignore si le backend autorise
+
+          // On navigue vers /home seulement si l'état est AuthSuccess
+          if (state is AuthSuccess) {
             Navigator.pushReplacementNamed(context, '/home');
           }
         },
@@ -68,7 +69,7 @@ class LoginScreenState extends State<LoginScreen> {
                     icon: const Icon(Icons.login),
                     onPressed: () {
                       BlocProvider.of<AuthBloc>(context)
-                          .add(GoogleLoginEvent());
+                          .add(GoogleLoginEvent(context: context));
                     },
                     label: const Text('Google'),
                   ),
@@ -77,7 +78,7 @@ class LoginScreenState extends State<LoginScreen> {
                     icon: const Icon(Icons.login),
                     onPressed: () {
                       BlocProvider.of<AuthBloc>(context)
-                          .add(GithubLoginEvent());
+                          .add(GitHubLoginEvent(context: context));
                     },
                     label: const Text('GitHub'),
                   ),

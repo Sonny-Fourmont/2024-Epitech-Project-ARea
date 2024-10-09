@@ -1,9 +1,10 @@
 import 'package:area/bloc/auth_event.dart';
 import 'package:area/bloc/auth_state.dart';
+import 'package:area/bloc/oauth_webview.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final Dio dio = Dio();
@@ -12,30 +13,49 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginEvent>(_onLogin);
     on<RegisterEvent>(_onRegister);
     on<GoogleLoginEvent>(_onGoogleLogin);
-    on<GithubLoginEvent>(_onGithubLogin);
+    on<GitHubLoginEvent>(_onGitHubLogin);
   }
-
   void _onGoogleLogin(GoogleLoginEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
-    final url = dotenv.env['GOOGLE_LOGIN_URL']!;
+    try {
+      final result = await Navigator.push(
+        event.context,
+        MaterialPageRoute(
+          builder: (context) => const OAuthWebView(
+            initialUrl: 'http://localhost:8080/google/login',
+          ),
+        ),
+      );
 
-    if (await canLaunchUrlString(url)) {
-      await launchUrlString(url);
-      emit(AuthSuccess("La page de connexion Google a été ouverte."));
-    } else {
-      emit(AuthFailure("Impossible d'ouvrir le lien de connexion Google."));
+      if (result != null && result['access_token'] != null) {
+        emit(AuthSuccess(result['access_token']));
+      } else {
+        emit(AuthFailure('Google login failed'));
+      }
+    } catch (e) {
+      emit(AuthFailure(e.toString()));
     }
   }
 
-  void _onGithubLogin(GithubLoginEvent event, Emitter<AuthState> emit) async {
+  void _onGitHubLogin(GitHubLoginEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
-    final url = dotenv.env['GITHUB_LOGIN_URL']!;
+    try {
+      final result = await Navigator.push(
+        event.context,
+        MaterialPageRoute(
+          builder: (context) => const OAuthWebView(
+            initialUrl: 'http://localhost:8080/github/login',
+          ),
+        ),
+      );
 
-    if (await canLaunchUrlString(url)) {
-      await launchUrlString(url);
-      emit(AuthSuccess("La page de connexion GitHub a été ouverte."));
-    } else {
-      emit(AuthFailure("Impossible d'ouvrir le lien de connexion GitHub."));
+      if (result != null && result['access_token'] != null) {
+        emit(AuthSuccess(result['access_token']));
+      } else {
+        emit(AuthFailure('GitHub login failed'));
+      }
+    } catch (e) {
+      emit(AuthFailure(e.toString()));
     }
   }
 

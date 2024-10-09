@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 
 abstract class AuthEvent extends Equatable {
   @override
@@ -25,6 +26,20 @@ class RegisterEvent extends AuthEvent {
   List<Object?> get props => [email, password];
 }
 
-class GoogleLoginEvent extends AuthEvent {}
+class GoogleLoginEvent extends AuthEvent {
+  final BuildContext context;
 
-class GithubLoginEvent extends AuthEvent {}
+  GoogleLoginEvent({required this.context});
+
+  @override
+  List<Object?> get props => [context];
+}
+
+class GitHubLoginEvent extends AuthEvent {
+  final BuildContext context;
+
+  GitHubLoginEvent({required this.context});
+
+  @override
+  List<Object?> get props => [context];
+}
