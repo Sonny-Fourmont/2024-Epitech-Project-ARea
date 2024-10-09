@@ -14,10 +14,15 @@ const OAuthButtons: React.FC = () => {
     // Handle GitHub login logic
   };
 
+  const handleFacebookLogin = () => {
+    // Handle Facebook login logic
+  }
+
   return (
     <div className="flex space-x-4">
       <OAuthButton provider="google" onClick={handleGoogleLogin} />
       <OAuthButton provider="microsoft" onClick={handleMicrosoftLogin} />
+      <OAuthButton provider="facebook" onClick={handleFacebookLogin} />
       <OAuthButton provider="github" onClick={handleGithubLogin} />
     </div>
   );
