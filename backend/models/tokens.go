@@ -8,5 +8,5 @@ import (
 type Token struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
 	Type      string             `bson:"type"`
-	TokenData *oauth2.Token      `bson:token_data,omitempty`
+	TokenData *oauth2.Token      `bson:"token_data,omitempty"`
 }
