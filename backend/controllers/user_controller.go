@@ -87,15 +87,15 @@ func GoogleLoggedIn(c *gin.Context) {
 	gmail, _ := gmail.NewService(context.Background(), option.WithHTTPClient(httpClient))
 	googleUser, _ := gmail.Users.GetProfile("me").Do()
 
+	user.ID = primitive.NewObjectID()
 	user.Username = googleUser.EmailAddress
 	user.Email = googleUser.EmailAddress
 	hashedPassword, _ := utils.GenerateHash("googleAccount")
 	user.Password = hashedPassword
 	user.Services.GoogleEmail = googleUser.EmailAddress
-	user.Services.GoogleId = primitive.NewObjectID()
-	tokens.ID = user.Services.GoogleId
+	tokens.ID = user.ID
 	tokens.Type = "Google"
-	tokens.RefreshToken = utils.GoogleToken.RefreshToken
+	tokens.Tokens = utils.GoogleToken
 
 	collection := storage.DB.Collection("users")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
