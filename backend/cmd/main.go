@@ -15,7 +15,7 @@ func main() {
 
 	router := gin.Default()
 
-	api.InitRoutes(router)
+	api.RegisterRoutes(router)
 
 	port := os.Getenv("PORT")
 	if port == "" {
