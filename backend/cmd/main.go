@@ -5,6 +5,7 @@ import (
 	"os"
 
 	api "area/api"
+	"area/services"
 	storage "area/storage"
 
 	"github.com/gin-gonic/gin"
@@ -15,12 +16,14 @@ func main() {
 
 	router := gin.Default()
 
-	api.RegisterRoutes(router)
+	api.InitRoutes(router)
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 	log.Printf("Starting server on port %s...", port)
+	go services.LaunchServices()
+
 	router.Run(":" + port)
 }

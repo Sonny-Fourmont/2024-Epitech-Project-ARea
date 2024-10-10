@@ -5,12 +5,16 @@ import (
 	"area/storage"
 	"area/utils"
 	"context"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"golang.org/x/oauth2"
+	"google.golang.org/api/gmail/v1"
+	"google.golang.org/api/option"
 )
 
 func RegisterUser(c *gin.Context) {
@@ -62,4 +66,66 @@ func GetUser(c *gin.Context) {
 		"username": user.Username,
 		"email":    user.Email,
 	})
+}
+
+// ----- GOOGLE ----- //
+func GoogleLogin(c *gin.Context) {
+	utils.GoogleAuth()
+	if utils.GoogleOauth == nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "OAuth configuration is not initialized"})
+	}
+	url := utils.GoogleOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	c.Redirect(http.StatusPermanentRedirect, url)
+}
+
+func GoogleLoggedIn(c *gin.Context) {
+	c.JSON(http.StatusOK, utils.GoogleToken)
+}
+
+// ----- YOUTUBE ----- //
+func YoutubeLogin(c *gin.Context) {
+	utils.YoutubeLikedAuth()
+	if utils.YoutubeOauth == nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "OAuth configuration is not initialized"})
+	}
+	url := utils.YoutubeOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	c.Redirect(http.StatusPermanentRedirect, url)
+}
+
+func YoutubeLoggedIn(c *gin.Context) {
+	var service models.YoutubeLikedService
+
+	httpClient := utils.YoutubeOauth.Client(context.Background(), utils.YoutubeToken)
+	gmail, _ := gmail.NewService(context.Background(), option.WithHTTPClient(httpClient))
+	youtubeUser, _ := gmail.Users.GetProfile("me").Do()
+
+	collection := storage.DB.Collection("services")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	service.ID = primitive.NewObjectID()
+	service.ID_User = storage.RetrieveUserID(youtubeUser.EmailAddress, ctx)
+	service.TokenData = utils.YoutubeToken
+
+	_, err := collection.InsertOne(ctx, service)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed insert service"})
+		return
+	}
+	log.Output(0, "Service has been created!")
+	c.JSON(http.StatusOK, service.TokenData)
+}
+
+// ----- GITHUB ----- //
+func GithubLogin(c *gin.Context) {
+	utils.GithubAuth()
+	if utils.GithubOauth == nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "OAuth configuration is not initialized"})
+	}
+	url := utils.GithubOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	c.Redirect(http.StatusPermanentRedirect, url)
+}
+
+func GithubLoggedIn(c *gin.Context) {
+	c.JSON(http.StatusOK, utils.GithubToken)
 }
