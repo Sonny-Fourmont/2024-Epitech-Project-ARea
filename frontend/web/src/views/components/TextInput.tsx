@@ -8,6 +8,7 @@ interface InputProps {
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     placeholder?: string;
     showPasswordToggle?: boolean;
+    error?: string;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -17,6 +18,7 @@ const Input: React.FC<InputProps> = ({
     onChange,
     placeholder = '',
     showPasswordToggle = false,
+    error,
 }) => {
     const [showPassword, setShowPassword] = useState(false);
 
@@ -26,7 +28,7 @@ const Input: React.FC<InputProps> = ({
 
     return (
         <div className="relative w-full mb-4">
-            <label className="absolute -top-3 left-2 text-xs bg-white px-1" style={{ color: '#6C6A67' }}>
+            <label className="absolute -top-3 left-2 text-xs p-1 #ededed" style={{ color: '#6C6A67' }}>
                 {label}
             </label>
             <input
@@ -34,9 +36,9 @@ const Input: React.FC<InputProps> = ({
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
-                className="p-2 border border-gray-300 rounded w-full placeholder-placeholder"
+                className={`p-2 border ${error ? 'border-red-500' : 'border-gray-300'} rounded w-full placeholder-placeholder mt-2`}
             />
-
+            {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
             {type === 'password' && showPasswordToggle && (
                 <div
                     className="absolute inset-y-0 right-2 flex items-center cursor-pointer"
