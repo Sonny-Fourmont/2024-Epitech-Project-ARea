@@ -4,30 +4,6 @@ import AppletCard from '../../views/components/AppletCard';
 
 const MyAppletsPage = () => {
     const applets = [
-        {
-            title: 'Send email when new tweet',
-            isConnected: true,
-            provider: 'microsoft',
-            icon: '/images/logos/microsoft.svg',
-        },
-        {
-            title: 'Reddit Saved => RSS Email',
-            isConnected: true,
-            provider: 'google',
-            icon: '/images/logos/google.svg',
-        },
-        {
-            title: 'Reddit Saved => RSS Email',
-            isConnected: true,
-            provider: 'youtube',
-            icon: '/images/logos/youtube.svg',
-        },
-        {
-            title: 'Reddit Saved => RSS Email',
-            isConnected: false,
-            provider: 'gmail',
-            icon: '/images/logos/gmail.svg',
-        },
     ];
 
     return (
