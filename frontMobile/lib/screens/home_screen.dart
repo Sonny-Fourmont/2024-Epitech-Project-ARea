@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import '../component/appBar.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -81,15 +82,7 @@ class HomeScreen extends StatelessWidget {
     final List<String> platforms = callFunctionServices();
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: const Text(
-          'AREA',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+    appBar: const CustomAppBar(),
       body: Container(
         color: Colors.white,
         alignment: Alignment.topCenter,
