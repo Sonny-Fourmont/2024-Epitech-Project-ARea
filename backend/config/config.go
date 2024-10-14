@@ -6,16 +6,18 @@ import (
 )
 
 type Config struct {
-	GinMode string
-	DBUrl   string
-	DBName  string
+	GinMode  string
+	DBUrl    string
+	DBName   string
+	YTApiKey string
 }
 
 func LoadConfig() Config {
 	return Config{
-		GinMode: getEnv("GIN_MODE", "debug"),
-		DBUrl:   getEnv("MONGODB_TEST", "debug"),
-		DBName:  getEnv("DB_NAME", "Prod"),
+		GinMode:  getEnv("GIN_MODE", "debug"),
+		DBUrl:    getEnv("MONGODB_TEST", "debug"),
+		DBName:   getEnv("DB_NAME", "Prod"),
+		YTApiKey: getEnv("YOUTUBE_API_KEY", ""),
 	}
 }
 

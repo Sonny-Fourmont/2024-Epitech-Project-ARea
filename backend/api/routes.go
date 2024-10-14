@@ -23,6 +23,11 @@ func ServicesRoutes(router *gin.Engine) {
 		githubRoutes.GET("/", middlewares.CheckGithubToken, controllers.GithubLoggedIn)
 		githubRoutes.GET("/login", controllers.GithubLogin)
 	}
+	youtubeRoutes := router.Group("/youtube")
+	{
+		youtubeRoutes.GET("/", middlewares.CheckYoutubeCode, controllers.YoutubeLoggedIn)
+		youtubeRoutes.GET("/liked", controllers.YoutubeLogin)
+	}
 }
 
 func RegisterRoutes(router *gin.Engine) {

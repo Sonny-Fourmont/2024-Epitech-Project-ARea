@@ -30,3 +30,17 @@ func RetrieveUser(token_name string, ctx context.Context) primitive.ObjectID {
 	}
 	return user.ID
 }
+
+func RetrieveUserID(user_mail string, ctx context.Context) primitive.ObjectID {
+	collection := DB.Collection("users")
+	var user models.User
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err := collection.FindOne(ctx, bson.M{"email": user_mail}).Decode(&user)
+	if err != nil {
+		return primitive.NilObjectID
+	}
+	return user.ID
+}

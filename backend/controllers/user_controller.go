@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"area/models"
+	"area/services"
 	"area/storage"
 	"area/utils"
 	"context"
@@ -120,6 +121,44 @@ func GoogleLoggedIn(c *gin.Context) {
 	log.Output(0, "Refresh token has been created!")
 
 	c.JSON(http.StatusOK, utils.GoogleToken)
+}
+
+// ----- YOUTUBE ----- //
+func YoutubeLogin(c *gin.Context) {
+	utils.YoutubeLikedAuth()
+	if utils.YoutubeOauth == nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "OAuth configuration is not initialized"})
+	}
+	url := utils.YoutubeOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	c.Redirect(http.StatusPermanentRedirect, url)
+}
+
+func YoutubeLoggedIn(c *gin.Context) {
+	var service models.YoutubeLikedService
+
+	httpClient := utils.YoutubeOauth.Client(context.Background(), utils.YoutubeToken)
+	gmail, _ := gmail.NewService(context.Background(), option.WithHTTPClient(httpClient))
+	youtubeUser, _ := gmail.Users.GetProfile("me").Do()
+
+	collection := storage.DB.Collection("services")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	service.ID = primitive.NewObjectID()
+	service.ID_User = storage.RetrieveUserID(youtubeUser.EmailAddress, ctx)
+	service.TokenData = utils.YoutubeToken
+
+	_, err := collection.InsertOne(ctx, service)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed insert service"})
+		return
+	}
+	log.Output(0, "Service has been created!")
+
+	var videoLikedJSON []string
+	var statusCode int
+	videoLikedJSON, statusCode = services.GetLastedLiked(service.TokenData)
+	c.JSON(statusCode, videoLikedJSON)
 }
 
 // ----- GITHUB ----- //
