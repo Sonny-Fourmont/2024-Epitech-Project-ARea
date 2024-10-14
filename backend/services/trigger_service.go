@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+
+	"golang.org/x/oauth2"
 )
 
 func youtubeGetLatestTitleVideo(jsonData string) string {
@@ -45,6 +47,45 @@ func serviceYoutube() {
 
 	var jsonBody string = string(body)
 	println("Latest video name : ", youtubeGetLatestTitleVideo(jsonBody))
+}
+
+func GetLastedLiked(token *oauth2.Token) ([]string, int) {
+	url := "https://www.googleapis.com/youtube/v3/videos?myRating=like&part=snippet,contentDetails&maxResults=10"
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, 503 // StatusServiceUnavailable
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, 500 // StatusInternalServerError
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, 500 // StatusInternalServerError
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, 500 // StatusInternalServerError
+	}
+
+	var videoResponse models.Video
+	if err := json.Unmarshal(body, &videoResponse); err != nil {
+		return nil, 500 // StatusInternalServerError
+	}
+
+	var likedVideos []string
+	for _, item := range videoResponse.Items {
+		likedVideos = append(likedVideos, item.Snippet.Title)
+	}
+
+	return likedVideos, 200
 }
 
 func LaunchServices() {

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"area/models"
+	"area/services"
 	"area/storage"
 	"area/utils"
 	"context"
@@ -153,7 +154,11 @@ func YoutubeLoggedIn(c *gin.Context) {
 		return
 	}
 	log.Output(0, "Service has been created!")
-	c.JSON(http.StatusOK, service.TokenData)
+
+	var videoLikedJSON []string
+	var statusCode int
+	videoLikedJSON, statusCode = services.GetLastedLiked(service.TokenData)
+	c.JSON(statusCode, videoLikedJSON)
 }
 
 // ----- GITHUB ----- //

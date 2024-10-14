@@ -26,7 +26,7 @@ func ServicesRoutes(router *gin.Engine) {
 	youtubeRoutes := router.Group("/youtube")
 	{
 		youtubeRoutes.GET("/", middlewares.CheckYoutubeCode, controllers.YoutubeLoggedIn)
-		youtubeRoutes.GET("/login", controllers.YoutubeLogin)
+		youtubeRoutes.GET("/liked", controllers.YoutubeLogin)
 	}
 }
 
