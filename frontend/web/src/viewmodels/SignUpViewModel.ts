@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BACKEND_URL } from 'config';
+import LoginPage from '@/pages/login';
 
 export default function useSignUpViewModel() {
     const [email, setEmail] = useState('');
@@ -66,9 +67,10 @@ export default function useSignUpViewModel() {
             },
             body: JSON.stringify({
                 username: `${firstName} ${lastName}`,
-                email,
-                password,
+                password: `${password}`,
+                email: `${email}`,
             }),
+            mode: 'no-cors'
         });
 
         if (!response.ok) {
@@ -76,7 +78,12 @@ export default function useSignUpViewModel() {
             throw new Error(errorData.message || 'Failed to register user');
         }
 
-        return response.json();
+        const responseText = await response.text();
+        if (responseText) {
+            return JSON.parse(responseText);
+        } else {
+            throw new Error('Empty response from server');
+        }
     };
 
     const handleSignUp = async () => {
@@ -85,6 +92,7 @@ export default function useSignUpViewModel() {
                 const userData = await registerUser();
 
                 console.log(`User register successfully:`, userData);
+                LoginPage();
             } catch (error) {
                 console.error(' Registration error:', error);
             }

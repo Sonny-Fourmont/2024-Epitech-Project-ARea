@@ -14,7 +14,8 @@ export default function useLoginViewModel() {
             body: JSON.stringify({
                 email,
                 password
-            })
+            }),
+            mode: 'no-cors'
         });
 
         if (!response.ok) {
