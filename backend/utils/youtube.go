@@ -1,10 +1,9 @@
 package utils
 
 import (
+	"area/config"
 	"log"
-	"os"
 
-	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -13,14 +12,13 @@ var YoutubeOauth *oauth2.Config
 var YoutubeToken *oauth2.Token
 
 func YoutubeLikedAuth() {
-	godotenv.Load()
-	client_id := os.Getenv("YOUTUBE_CLIENT_ID")
-	client_secret := os.Getenv("YOUTUBE_CLIENT_SECRET")
+	client_id := config.ConfigService.YoutubeClientId
+	client_secret := config.ConfigService.YoutubeClientSecret
 
 	YoutubeOauth = &oauth2.Config{
 		ClientID:     client_id,
 		ClientSecret: client_secret,
-		RedirectURL:  os.Getenv("YOUTUBE_REDIRECT_URI"),
+		RedirectURL:  config.ConfigService.YoutubeRedirectUri,
 		Scopes: []string{
 			"https://www.googleapis.com/auth/gmail.modify",
 			"https://www.googleapis.com/auth/gmail.send",

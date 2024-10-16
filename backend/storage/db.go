@@ -1,9 +1,9 @@
 package storage
 
 import (
+	"area/config"
 	"context"
 	"log"
-	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -24,11 +24,11 @@ func ResetDatabase() {
 }
 
 func ConnectDatabase() {
-	mongoURI := os.Getenv("MONGODB_URI_DEV")
-	if os.Getenv("GIN_MODE") == "test" {
-		mongoURI = os.Getenv("MONGODB_URI_TEST")
+	mongoURI := config.ConfigDatabase.MongoDBUriDev
+	if config.ConfigGin.GinMode == "test" {
+		mongoURI = config.ConfigDatabase.MongoDBUriTest
 	}
-	dbName := os.Getenv("DB_NAME")
+	dbName := config.ConfigDatabase.DbName
 
 	clientOpts := options.Client().ApplyURI(mongoURI)
 	client, err := mongo.Connect(context.TODO(), clientOpts)
