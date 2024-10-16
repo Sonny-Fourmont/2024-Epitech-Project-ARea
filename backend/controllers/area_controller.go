@@ -4,6 +4,7 @@ import (
 	"area/models"
 	"area/storage"
 	"context"
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -12,14 +13,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func CreateAREA(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "AREA created successfully"})
+func CreateAREA(c *gin.Context) (string, int) {
+	jsonResponseBytes, _ := json.Marshal(map[string]string{"message": "AREA created successfully"})
+	return string(jsonResponseBytes), http.StatusOK
 }
 
-func GetApplets(c *gin.Context) {
+func GetApplets(c *gin.Context) (string, int) {
+	var err error
 	token := c.GetHeader("access_token")
 	if token == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing Token"})
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Missing Token"})
+		return string(jsonResponseBytes), http.StatusBadRequest
 	}
 
 	collection := storage.DB.Collection("applets")
@@ -32,30 +36,32 @@ func GetApplets(c *gin.Context) {
 	userID := storage.RetrieveUser(token, ctx)
 	cur, err := collection.Find(ctx, bson.M{"user_id": userID})
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"applet_array": "[]",
-		})
-		return
+		jsonReponseBytes, _ := json.Marshal("[]")
+		return string(jsonReponseBytes), http.StatusOK
 	}
 	for cur.Next(ctx) {
 		cur.Decode(&applet)
 		applets = append(applets, applet)
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"applet_array": applets,
-	})
+
+	response := struct {
+		Applets []models.Applet `json:"applet_array"`
+	}{Applets: applets}
+	jsonResponseBytes, _ := json.Marshal(response)
+	return string(jsonResponseBytes), http.StatusOK
 }
 
-func AddApplet(c *gin.Context) {
+func AddApplet(c *gin.Context) (string, int) {
 	token := c.GetHeader("access_token")
 	if token == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing Token"})
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Missing Token"})
+		return string(jsonResponseBytes), http.StatusBadRequest
 	}
 
 	var applet models.Applet
 	if err := c.ShouldBindJSON(&applet); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
-		return
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Invalid JSON"})
+		return string(jsonResponseBytes), http.StatusBadRequest
 	}
 
 	collection := storage.DB.Collection("applets")
@@ -64,14 +70,15 @@ func AddApplet(c *gin.Context) {
 
 	var userID primitive.ObjectID = storage.RetrieveUser(token, ctx)
 	if userID == primitive.NilObjectID {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid token"})
-		return
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Invalid Token"})
+		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
 	applet.ID_User = userID
 	_, err := collection.InsertOne(ctx, applet)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create applet"})
-		return
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create applet"})
+		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Applet added successfully"})
+	jsonResponseBytes, _ := json.Marshal(map[string]string{"message": "Applet added successfully"})
+	return string(jsonResponseBytes), http.StatusOK
 }

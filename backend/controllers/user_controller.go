@@ -6,6 +6,7 @@ import (
 	"area/storage"
 	"area/utils"
 	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
@@ -19,11 +20,12 @@ import (
 	"google.golang.org/api/option"
 )
 
-func RegisterUser(c *gin.Context) {
+func RegisterUser(c *gin.Context) (string, int) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
-		return
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Invalid JSON"})
+		return string(jsonResponseBytes), http.StatusBadRequest
+
 	}
 
 	hashedPassword, _ := utils.GenerateHash(user.Password)
@@ -35,20 +37,20 @@ func RegisterUser(c *gin.Context) {
 
 	_, err := collection.InsertOne(ctx, user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
-		return
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
+		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "User registered successfully"})
+	jsonResponseBytes, _ := json.Marshal(map[string]string{"message": "User registered successfully"})
+	return string(jsonResponseBytes), http.StatusOK
 }
 
-func GetUser(c *gin.Context) {
+func GetUser(c *gin.Context) (string, int) {
 	id := c.Param("id")
 
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
-		return
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Invalid ID format"})
+		return string(jsonResponseBytes), http.StatusBadRequest
 	}
 
 	collection := storage.DB.Collection("users")
@@ -59,28 +61,31 @@ func GetUser(c *gin.Context) {
 
 	err = collection.FindOne(ctx, bson.M{"_id": objectID}).Decode(&user)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-		return
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "User not found"})
+		return string(jsonResponseBytes), http.StatusBadRequest
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	jsonResponseBytes, _ := json.Marshal(map[string]string{
 		"id":       user.ID.Hex(),
 		"username": user.Username,
 		"email":    user.Email,
 	})
+	return string(jsonResponseBytes), http.StatusOK
+
 }
 
 // ----- GOOGLE ----- //
-func GoogleLogin(c *gin.Context) {
+func GoogleLogin(c *gin.Context) (string, int) {
 	utils.GoogleAuth()
 	if utils.GoogleOauth == nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "OAuth configuration is not initialized"})
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "OAuth configuration is not initialized"})
+		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
 	url := utils.GoogleOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	c.Redirect(http.StatusPermanentRedirect, url)
+	return url, http.StatusPermanentRedirect
 }
 
-func GoogleLoggedIn(c *gin.Context) {
+func GoogleLoggedIn(c *gin.Context) (*oauth2.Token, string, int) {
 	var user models.User
 	var tokens models.Token
 
@@ -104,8 +109,8 @@ func GoogleLoggedIn(c *gin.Context) {
 
 	_, err := collection.InsertOne(ctx, user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
-		return
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
+		return nil, string(jsonResponseBytes), http.StatusInternalServerError
 	}
 	log.Output(0, "User has been created!")
 
@@ -115,25 +120,25 @@ func GoogleLoggedIn(c *gin.Context) {
 
 	_, err = collection.InsertOne(ctx, tokens)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
-		return
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
+		return nil, string(jsonResponseBytes), http.StatusInternalServerError
 	}
 	log.Output(0, "Refresh token has been created!")
-
-	c.JSON(http.StatusOK, utils.GoogleToken)
+	return utils.GoogleToken, "", http.StatusOK
 }
 
 // ----- YOUTUBE ----- //
-func YoutubeLogin(c *gin.Context) {
+func YoutubeLogin(c *gin.Context) (string, int) {
 	utils.YoutubeLikedAuth()
 	if utils.YoutubeOauth == nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "OAuth configuration is not initialized"})
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "OAuth configuration is not initialized"})
+		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
 	url := utils.YoutubeOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	c.Redirect(http.StatusPermanentRedirect, url)
+	return url, http.StatusPermanentRedirect
 }
 
-func YoutubeLoggedIn(c *gin.Context) {
+func YoutubeLoggedIn(c *gin.Context) (string, int) {
 	var service models.YoutubeLikedService
 
 	httpClient := utils.YoutubeOauth.Client(context.Background(), utils.YoutubeToken)
@@ -150,28 +155,30 @@ func YoutubeLoggedIn(c *gin.Context) {
 
 	_, err := collection.InsertOne(ctx, service)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed insert service"})
-		return
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed insert service"})
+		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
 	log.Output(0, "Service has been created!")
 
 	var videoLikedJSON []string
 	var statusCode int
 	videoLikedJSON, statusCode = services.GetLastedLiked(service.TokenData)
-	c.JSON(statusCode, videoLikedJSON)
+	jsonResponseBytes, _ := json.Marshal(videoLikedJSON)
+	return string(jsonResponseBytes), statusCode
 }
 
 // ----- GITHUB ----- //
-func GithubLogin(c *gin.Context) {
+func GithubLogin(c *gin.Context) (string, int) {
 	utils.GithubAuth()
 	if utils.GithubOauth == nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "OAuth configuration is not initialized"})
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "OAuth configuration is not initialized"})
+		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
 	url := utils.GithubOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	c.Redirect(http.StatusPermanentRedirect, url)
+	return url, http.StatusPermanentRedirect
 }
 
-func GithubLoggedIn(c *gin.Context) {
+func GithubLoggedIn(c *gin.Context) (*oauth2.Token, string, int) {
 	var user models.User
 	var tokens models.Token
 
@@ -179,8 +186,8 @@ func GithubLoggedIn(c *gin.Context) {
 	githubClient := github.NewClient(httpClient)
 	userInfo, _, err := githubClient.Users.Get(c, "")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
-		return
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
+		return nil, string(jsonResponseBytes), http.StatusInternalServerError
 	}
 
 	user.ID = primitive.NewObjectID()
@@ -199,8 +206,8 @@ func GithubLoggedIn(c *gin.Context) {
 
 	_, err = collection.InsertOne(ctx, user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
-		return
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
+		return nil, string(jsonResponseBytes), http.StatusInternalServerError
 	}
 	log.Output(0, "User has been created!")
 
@@ -210,10 +217,10 @@ func GithubLoggedIn(c *gin.Context) {
 
 	_, err = collection.InsertOne(ctx, tokens)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
-		return
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
+		return nil, string(jsonResponseBytes), http.StatusInternalServerError
 	}
 	log.Output(0, "Token has been created!")
 
-	c.JSON(http.StatusOK, utils.GithubToken)
+	return utils.GithubToken, "", http.StatusOK
 }

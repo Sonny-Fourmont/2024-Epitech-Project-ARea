@@ -1,13 +1,14 @@
 package utils
 
 import (
+	"area/config"
 	"strconv"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
-var jwtKey = []byte("secret_key")
+var jwtKey = []byte(config.ConfigGin.TokenKey)
 
 func GenerateJWT(userID uint) (string, error) {
 	claims := &jwt.StandardClaims{

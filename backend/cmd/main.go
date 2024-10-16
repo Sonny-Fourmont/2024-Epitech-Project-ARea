@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	"os"
 
-	api "area/api"
+	"area/config"
+	"area/routes"
 	"area/services"
 	storage "area/storage"
 
@@ -12,16 +12,14 @@ import (
 )
 
 func main() {
+	config.LoadConfig()
 	storage.ConnectDatabase()
 
 	router := gin.Default()
 
-	api.InitRoutes(router)
+	routes.InitRoutes(router)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+	port := config.ConfigGin.Port
 	log.Printf("Starting server on port %s...", port)
 	go services.LaunchServices()
 
