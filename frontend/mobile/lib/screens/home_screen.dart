@@ -4,6 +4,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import '../component/appBar.dart';
 import '../component/navBar.dart';
+import '../component/searchBar.dart'; 
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -215,6 +217,85 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: CustomNavBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
+      ),
+    );
+  }
+}
+
+
+class EntrySearch extends StatelessWidget {
+  const EntrySearch({Key? key, required this.onSearchEntered})
+      : super(key: key);
+
+  final Function(String) onSearchEntered;
+  @override
+  Widget build(BuildContext context) {
+    var padinputText = 14.0;
+    return Padding(
+      padding: const EdgeInsets.only(top: 112),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: SizedBox(
+          height: 48,
+          width: 350,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+              height: 48,
+              width: 331,
+              child: Stack(
+                children: [
+                  Container(
+                    width: double.maxFinite,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 235, 233, 229),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: TextFormField(
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontFamily: 'Avenir Next',
+                        height: 1.25,
+                        color: Color.fromARGB(255, 43, 42, 40),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      cursorColor: const Color.fromARGB(255, 254, 152, 97),
+                      decoration: InputDecoration(
+                        // hintText: AppLocalizations.of(context).docs_search,
+                        hintStyle: const TextStyle(
+                          fontSize: 16,
+                          height: 1.25,
+                          fontFamily: 'Avenir Next',
+                          color: Color.fromARGB(255, 163, 159, 166),
+                          fontWeight: FontWeight.w500,
+                        ),
+                        border: InputBorder.none,
+                        isCollapsed: true,
+                        contentPadding:
+                            EdgeInsets.fromLTRB(44, padinputText, 0, 0),
+                      ),
+                      onChanged: (value) {
+                        onSearchEntered(value);
+                      },
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 12),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      // child: Image.asset(
+                      //   iconLoop,
+                      //   height: 24,
+                      //   width: 24,
+                      // ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
