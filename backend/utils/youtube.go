@@ -20,8 +20,6 @@ func YoutubeLikedAuth() {
 		ClientSecret: client_secret,
 		RedirectURL:  config.ConfigService.YoutubeRedirectUri,
 		Scopes: []string{
-			"https://www.googleapis.com/auth/gmail.modify",
-			"https://www.googleapis.com/auth/gmail.send",
 			"https://www.googleapis.com/auth/youtube.readonly",
 			"https://www.googleapis.com/auth/youtube",
 			"https://www.googleapis.com/auth/youtube.channel-memberships.creator",

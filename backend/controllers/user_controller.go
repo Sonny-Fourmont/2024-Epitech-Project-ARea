@@ -1,24 +1,18 @@
 package controllers
 
 import (
+	"area/middlewares"
 	"area/models"
-	"area/services"
 	"area/storage"
 	"area/utils"
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/go-github/github"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"golang.org/x/oauth2"
-	"google.golang.org/api/gmail/v1"
-	"google.golang.org/api/option"
 )
 
 func RegisterUser(c *gin.Context) (string, int) {
@@ -76,145 +70,5 @@ func GetUser(c *gin.Context) (string, int) {
 }
 
 func GetMe(c *gin.Context) (string, int) {
-	token := c.GetHeader("Authorization")
-	if token == "" {
-		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Missing Token"})
-		return string(jsonResponseBytes), http.StatusBadRequest
-	}
-	tokenPretty := strings.Split(token, "Bearer ")
-	userID, err := utils.GetUserIDFromJWT(tokenPretty[1])
-	if err != nil {
-		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Invalid token"})
-		return string(jsonResponseBytes), http.StatusBadRequest
-	}
-	jsonResponseBytes, _ := json.Marshal(map[string]string{"user": userID})
-	return string(jsonResponseBytes), http.StatusOK
-}
-
-// ----- GOOGLE ----- //
-func GoogleLogin(c *gin.Context) (string, int) {
-	utils.GoogleAuth()
-	if utils.GoogleOauth == nil {
-		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "OAuth configuration is not initialized"})
-		return string(jsonResponseBytes), http.StatusInternalServerError
-	}
-	url := utils.GoogleOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	return url, http.StatusPermanentRedirect
-}
-
-func GoogleLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
-	var user models.User
-	var tokens models.Token
-
-	httpClient := utils.GoogleOauth.Client(context.Background(), utils.GoogleToken)
-	gmail, _ := gmail.NewService(context.Background(), option.WithHTTPClient(httpClient))
-	googleUser, _ := gmail.Users.GetProfile("me").Do()
-
-	user.ID = primitive.NewObjectID()
-	user.Username = googleUser.EmailAddress
-	user.Email = googleUser.EmailAddress
-	hashedPassword, _ := utils.GenerateHash("googleAccount")
-	user.Password = hashedPassword
-
-	var status bool = storage.CreateUser(user)
-	if !status {
-		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
-		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
-	}
-
-	tokens.UserID = user.ID
-	tokens.Type = "Google"
-	tokens.TokenData = utils.GoogleToken
-
-	status = storage.CreateToken(tokens)
-	if !status {
-		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
-		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
-	}
-	log.Output(0, "Refresh token has been created!")
-	return user.ID, "", http.StatusOK
-}
-
-// ----- YOUTUBE ----- //
-func YoutubeLogin(c *gin.Context) (string, int) {
-	utils.YoutubeLikedAuth()
-	if utils.YoutubeOauth == nil {
-		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "OAuth configuration is not initialized"})
-		return string(jsonResponseBytes), http.StatusInternalServerError
-	}
-	url := utils.YoutubeOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	return url, http.StatusPermanentRedirect
-}
-
-func YoutubeLoggedIn(c *gin.Context) (string, int) {
-	var token models.Token
-
-	httpClient := utils.YoutubeOauth.Client(context.Background(), utils.YoutubeToken)
-	gmail, _ := gmail.NewService(context.Background(), option.WithHTTPClient(httpClient))
-	youtubeUser, _ := gmail.Users.GetProfile("me").Do()
-
-	token.ID = primitive.NewObjectID()
-	token.UserID = storage.GetUserIDByEmail(youtubeUser.EmailAddress)
-	token.TokenData = utils.YoutubeToken
-	token.Type = "Youtube_liked"
-
-	var status bool = storage.CreateToken(token)
-	if !status {
-		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
-		return string(jsonResponseBytes), http.StatusInternalServerError
-	}
-
-	var videoLikedJSON []string
-	var statusCode int
-	videoLikedJSON, statusCode = services.GetLastedLiked(token.TokenData)
-	jsonResponseBytes, _ := json.Marshal(videoLikedJSON)
-	return string(jsonResponseBytes), statusCode
-}
-
-// ----- GITHUB ----- //
-func GithubLogin(c *gin.Context) (string, int) {
-	utils.GithubAuth()
-	if utils.GithubOauth == nil {
-		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "OAuth configuration is not initialized"})
-		return string(jsonResponseBytes), http.StatusInternalServerError
-	}
-	url := utils.GithubOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	return url, http.StatusPermanentRedirect
-}
-
-func GithubLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
-	var user models.User
-	var token models.Token
-
-	httpClient := utils.GithubOauth.Client(context.Background(), utils.GithubToken)
-	githubClient := github.NewClient(httpClient)
-	userInfo, _, err := githubClient.Users.Get(c, "")
-	if err != nil {
-		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
-		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
-	}
-
-	user.ID = primitive.NewObjectID()
-	user.Username = *userInfo.Name
-	user.Email = *userInfo.Email
-	hashedPassword, _ := utils.GenerateHash("githubAccount")
-	user.Password = hashedPassword
-
-	token.ID = user.ID
-	token.Type = "Github"
-	token.TokenData = utils.GithubToken
-
-	var status bool = storage.CreateUser(user)
-	if !status {
-		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
-		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
-	}
-
-	status = storage.CreateToken(token)
-	if !status {
-		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
-		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
-	}
-
-	return user.ID, "", http.StatusOK
+	return middlewares.GetClient(c).Hex(), http.StatusOK
 }
