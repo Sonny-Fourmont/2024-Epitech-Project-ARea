@@ -33,7 +33,7 @@ func GetApplets(c *gin.Context) (string, int) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	userID := storage.RetrieveUser(token, ctx)
+	var userID primitive.ObjectID = storage.GetUserIDByToken(token)
 	cur, err := collection.Find(ctx, bson.M{"user_id": userID})
 	if err != nil {
 		jsonReponseBytes, _ := json.Marshal("[]")
@@ -68,7 +68,7 @@ func AddApplet(c *gin.Context) (string, int) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	var userID primitive.ObjectID = storage.RetrieveUser(token, ctx)
+	var userID primitive.ObjectID = storage.GetUserIDByToken(token)
 	if userID == primitive.NilObjectID {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Invalid Token"})
 		return string(jsonResponseBytes), http.StatusInternalServerError

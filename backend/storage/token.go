@@ -3,44 +3,96 @@ package storage
 import (
 	"area/models"
 	"context"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func RetrieveUser(token_name string, ctx context.Context) primitive.ObjectID {
+func GetToken(UserId primitive.ObjectID, serviceType string) models.Token {
 	collection := DB.Collection("tokens")
 	var token models.Token
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := collection.FindOne(ctx, bson.M{"token_data.accesstoken": token_name}).Decode(&token)
+	err := collection.FindOne(ctx, bson.M{"user_id": UserId, "type": serviceType}).Decode(&token)
 	if err != nil {
-		println(token_name)
-		return primitive.NilObjectID
+		log.Printf("Error while retrieving token by id and type: %v", err)
+		return models.Token{}
 	}
-
-	collection = DB.Collection("users")
-	var user models.User
-	err = collection.FindOne(ctx, bson.M{"_id": token.ID}).Decode(&user)
-	if err != nil {
-		return primitive.NilObjectID
-	}
-	return user.ID
+	return token
 }
 
-func RetrieveUserID(user_mail string, ctx context.Context) primitive.ObjectID {
-	collection := DB.Collection("users")
-	var user models.User
+func GetTokenByID(id primitive.ObjectID) models.Token {
+	collection := DB.Collection("tokens")
+	var token models.Token
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := collection.FindOne(ctx, bson.M{"email": user_mail}).Decode(&user)
+	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&token)
 	if err != nil {
-		return primitive.NilObjectID
+		log.Printf("Error while retrieving token by id and type: %v", err)
+		return models.Token{}
 	}
-	return user.ID
+	return token
+}
+
+func UpdateToken(token models.Token, newToken models.Token) bool {
+	collection := DB.Collection("tokens")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if newToken.ID != primitive.NilObjectID {
+		token.ID = newToken.ID
+	}
+	if newToken.Type != "" {
+		token.Type = newToken.Type
+	}
+	if newToken.TokenData != nil {
+		token.TokenData = newToken.TokenData
+	}
+	if newToken.UserID != primitive.NilObjectID {
+		token.UserID = newToken.UserID
+	}
+	token.UpdatedAt = time.Now()
+	_, err := collection.UpdateByID(ctx, token.ID, bson.M{"$set": token})
+	if err != nil {
+		log.Printf("Error while updating token: %v", err)
+		return false
+	}
+	return true
+}
+
+func CreateToken(token models.Token) bool {
+	collection := DB.Collection("tokens")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	token.CreatedAt = time.Now()
+	token.UpdatedAt = time.Now()
+	_, err := collection.InsertOne(ctx, token)
+	if err != nil {
+		log.Printf("Error while creating token: %v", err)
+		return false
+	}
+	return true
+}
+
+func DeleteToken(UserId primitive.ObjectID, serviceType string) bool {
+	collection := DB.Collection("token")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := collection.DeleteOne(ctx, bson.M{"user_id": UserId, "type": serviceType})
+	if err != nil {
+		log.Printf("Error while deleting token by id and type: %v", err)
+		return false
+	}
+	return true
 }
