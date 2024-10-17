@@ -24,7 +24,7 @@ func ServicesRoutes(router *gin.Engine) {
 	}
 	youtubeRoutes := router.Group("/youtube")
 	{
-		youtubeRoutes.GET("/", middlewares.CheckYoutubeCode, YoutubeLoggedIn)
+		youtubeRoutes.GET("/", middlewares.CheckTokenCode, middlewares.CheckYoutubeCode, YoutubeLoggedIn)
 		youtubeRoutes.GET("/liked", YoutubeLogin)
 	}
 }
@@ -42,6 +42,13 @@ func RegisterRoutes(router *gin.Engine) {
 	}
 }
 
+func ExtraRoutes(router *gin.Engine) {
+	extraRoutes := router.Group("/extra")
+	{
+		extraRoutes.GET("/me", middlewares.CheckTokenCode, GetMe)
+	}
+}
+
 func AppletRoutes(router *gin.Engine) {
 	userRoutes := router.Group("/applet")
 	{
@@ -51,6 +58,7 @@ func AppletRoutes(router *gin.Engine) {
 }
 
 func InitRoutes(router *gin.Engine) {
+	ExtraRoutes(router)
 	RegisterRoutes(router)
 	ServicesRoutes(router)
 	AppletRoutes(router)
