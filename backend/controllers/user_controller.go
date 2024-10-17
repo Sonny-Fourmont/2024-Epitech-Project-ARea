@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -74,6 +75,22 @@ func GetUser(c *gin.Context) (string, int) {
 
 }
 
+func GetMe(c *gin.Context) (string, int) {
+	token := c.GetHeader("Authorization")
+	if token == "" {
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Missing Token"})
+		return string(jsonResponseBytes), http.StatusBadRequest
+	}
+	tokenPretty := strings.Split(token, "Bearer ")
+	userID, err := utils.GetUserIDFromJWT(tokenPretty[1])
+	if err != nil {
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Invalid token"})
+		return string(jsonResponseBytes), http.StatusBadRequest
+	}
+	jsonResponseBytes, _ := json.Marshal(map[string]string{"user": userID})
+	return string(jsonResponseBytes), http.StatusOK
+}
+
 // ----- GOOGLE ----- //
 func GoogleLogin(c *gin.Context) (string, int) {
 	utils.GoogleAuth()
@@ -85,7 +102,7 @@ func GoogleLogin(c *gin.Context) (string, int) {
 	return url, http.StatusPermanentRedirect
 }
 
-func GoogleLoggedIn(c *gin.Context) (*oauth2.Token, string, int) {
+func GoogleLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
 	var user models.User
 	var tokens models.Token
 
@@ -102,7 +119,7 @@ func GoogleLoggedIn(c *gin.Context) (*oauth2.Token, string, int) {
 	var status bool = storage.CreateUser(user)
 	if !status {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
-		return nil, string(jsonResponseBytes), http.StatusInternalServerError
+		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
 	}
 
 	tokens.UserID = user.ID
@@ -112,10 +129,10 @@ func GoogleLoggedIn(c *gin.Context) (*oauth2.Token, string, int) {
 	status = storage.CreateToken(tokens)
 	if !status {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
-		return nil, string(jsonResponseBytes), http.StatusInternalServerError
+		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
 	}
 	log.Output(0, "Refresh token has been created!")
-	return utils.GoogleToken, "", http.StatusOK
+	return user.ID, "", http.StatusOK
 }
 
 // ----- YOUTUBE ----- //
@@ -165,7 +182,7 @@ func GithubLogin(c *gin.Context) (string, int) {
 	return url, http.StatusPermanentRedirect
 }
 
-func GithubLoggedIn(c *gin.Context) (*oauth2.Token, string, int) {
+func GithubLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
 	var user models.User
 	var token models.Token
 
@@ -174,7 +191,7 @@ func GithubLoggedIn(c *gin.Context) (*oauth2.Token, string, int) {
 	userInfo, _, err := githubClient.Users.Get(c, "")
 	if err != nil {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
-		return nil, string(jsonResponseBytes), http.StatusInternalServerError
+		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
 	}
 
 	user.ID = primitive.NewObjectID()
@@ -190,14 +207,14 @@ func GithubLoggedIn(c *gin.Context) (*oauth2.Token, string, int) {
 	var status bool = storage.CreateUser(user)
 	if !status {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
-		return nil, string(jsonResponseBytes), http.StatusInternalServerError
+		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
 	}
 
 	status = storage.CreateToken(token)
 	if !status {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
-		return nil, string(jsonResponseBytes), http.StatusInternalServerError
+		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
 	}
 
-	return utils.GithubToken, "", http.StatusOK
+	return user.ID, "", http.StatusOK
 }
