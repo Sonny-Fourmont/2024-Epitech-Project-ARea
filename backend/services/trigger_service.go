@@ -46,7 +46,7 @@ func serviceYoutube() {
 	}
 
 	var jsonBody string = string(body)
-	println("Latest video name : ", youtubeGetLatestTitleVideo(jsonBody))
+	log.Print("Latest video name : ", youtubeGetLatestTitleVideo(jsonBody))
 }
 
 func GetLastedLiked(token *oauth2.Token) ([]string, int) {

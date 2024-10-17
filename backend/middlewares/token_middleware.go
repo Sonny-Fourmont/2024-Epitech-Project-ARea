@@ -5,10 +5,39 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func CheckTokenCode(c *gin.Context) {
+func GetClient(c *gin.Context) primitive.ObjectID {
+	var token string
+	tokenValue, exists := c.Get("id_client")
+	if !exists {
+		return primitive.NilObjectID
+	}
+	token, _ = tokenValue.(string)
+	var tokenPrimitive primitive.ObjectID
+	tokenPrimitive, err := primitive.ObjectIDFromHex(token)
+	if err != nil {
+		return primitive.NilObjectID
+	}
+	return tokenPrimitive
+}
+
+func TokenToClient(token *jwt.Token) string {
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return ""
+	}
+	userID, ok := claims["sub"].(string)
+	if !ok {
+		return ""
+	}
+	return userID
+}
+
+func VerifyToken(c *gin.Context) {
 
 	token := c.GetHeader("Authorization")
 	if token == "" {
@@ -29,5 +58,11 @@ func CheckTokenCode(c *gin.Context) {
 		c.Abort()
 		return
 	}
+
+	var id_client = TokenToClient(parsedToken)
+	if id_client == "" {
+		c.JSON(http.StatusInternalServerError, "Failed to get client")
+	}
+	c.Set("id_client", id_client)
 	c.Next()
 }

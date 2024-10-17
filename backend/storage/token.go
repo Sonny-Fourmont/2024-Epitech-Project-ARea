@@ -7,59 +7,46 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func GetToken(UserId primitive.ObjectID, serviceType string) models.Token {
+func ExistToken(token models.Token) bool {
 	collection := DB.Collection("tokens")
-	var token models.Token
+	var actualToken models.Token
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := collection.FindOne(ctx, bson.M{"user_id": UserId, "type": serviceType}).Decode(&token)
+	err := collection.FindOne(ctx, bson.M{"user_id": token.UserID, "type": token.Type}).Decode(&actualToken)
 	if err != nil {
-		log.Printf("Error while retrieving token by id and type: %v", err)
-		return models.Token{}
+		log.Printf("Token not found: %v", err)
+		return false
 	}
-	return token
+	return true
 }
 
-func GetTokenByID(id primitive.ObjectID) models.Token {
-	collection := DB.Collection("tokens")
-	var token models.Token
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&token)
-	if err != nil {
-		log.Printf("Error while retrieving token by id and type: %v", err)
-		return models.Token{}
+func CreateORUpdateToken(newToken models.Token) bool {
+	if ExistToken(newToken) {
+		return UpdateToken(newToken)
 	}
-	return token
+	return CreateToken(newToken)
 }
 
-func UpdateToken(token models.Token, newToken models.Token) bool {
+func UpdateToken(newToken models.Token) bool {
 	collection := DB.Collection("tokens")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if newToken.ID != primitive.NilObjectID {
-		token.ID = newToken.ID
+	update := bson.M{
+		"$set": bson.M{
+			"user_id":    newToken.UserID,
+			"type":       newToken.Type,
+			"token_data": newToken.TokenData,
+			"updated_at": time.Now(),
+			"created_at": newToken.CreatedAt,
+		},
 	}
-	if newToken.Type != "" {
-		token.Type = newToken.Type
-	}
-	if newToken.TokenData != nil {
-		token.TokenData = newToken.TokenData
-	}
-	if newToken.UserID != primitive.NilObjectID {
-		token.UserID = newToken.UserID
-	}
-	token.UpdatedAt = time.Now()
-	_, err := collection.UpdateByID(ctx, token.ID, bson.M{"$set": token})
+	_, err := collection.UpdateOne(ctx, bson.M{"user_id": newToken.UserID, "type": newToken.Type}, update)
 	if err != nil {
 		log.Printf("Error while updating token: %v", err)
 		return false
@@ -67,15 +54,13 @@ func UpdateToken(token models.Token, newToken models.Token) bool {
 	return true
 }
 
-func CreateToken(token models.Token) bool {
+func CreateToken(newToken models.Token) bool {
 	collection := DB.Collection("tokens")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	token.CreatedAt = time.Now()
-	token.UpdatedAt = time.Now()
-	_, err := collection.InsertOne(ctx, token)
+	_, err := collection.InsertOne(ctx, newToken)
 	if err != nil {
 		log.Printf("Error while creating token: %v", err)
 		return false
@@ -83,16 +68,31 @@ func CreateToken(token models.Token) bool {
 	return true
 }
 
-func DeleteToken(UserId primitive.ObjectID, serviceType string) bool {
-	collection := DB.Collection("token")
+func DeleteToken(token models.Token) bool {
+	collection := DB.Collection("tokens")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := collection.DeleteOne(ctx, bson.M{"user_id": UserId, "type": serviceType})
+	_, err := collection.DeleteOne(ctx, bson.M{"user_id": token.UserID, "type": token.Type})
 	if err != nil {
-		log.Printf("Error while deleting token by id and type: %v", err)
+		log.Printf("Error while deleting token: %v", err)
 		return false
 	}
 	return true
+}
+
+func GetTokenByUserIDAndType(userID string, tokenType string) models.Token {
+	collection := DB.Collection("tokens")
+	var token models.Token
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err := collection.FindOne(ctx, bson.M{"user_id": userID, "type": tokenType}).Decode(&token)
+	if err != nil {
+		log.Printf("Error while retrieving token by user_id and type: %v", err)
+		return models.Token{}
+	}
+	return token
 }

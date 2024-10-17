@@ -7,25 +7,9 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func GetUserByID(id primitive.ObjectID) models.User {
-	collection := DB.Collection("users")
-	var user models.User
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&user)
-	if err != nil {
-		log.Printf("Error while retrieving user by id: %v", err)
-		return models.User{}
-	}
-	return user
-}
-
-func GetUserIDByEmail(email string) primitive.ObjectID {
+func GetUserByEmail(email string) (models.User, bool) {
 	collection := DB.Collection("users")
 	var user models.User
 
@@ -34,44 +18,64 @@ func GetUserIDByEmail(email string) primitive.ObjectID {
 
 	err := collection.FindOne(ctx, bson.M{"email": email}).Decode(&user)
 	if err != nil {
-		log.Printf("Error while retrieving user by email: %v", err)
-		return primitive.NilObjectID
+		log.Printf("Error while getting user: %v", err)
+		return user, false
 	}
-	return user.ID
+	return user, true
 }
 
-func GetUserIDByToken(token string) primitive.ObjectID {
+func ExistUser(user models.User) bool {
 	collection := DB.Collection("users")
-	var user models.User
+	var actualUser models.User
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := collection.FindOne(ctx, bson.M{"token_data.accesstoken": token}).Decode(&user)
+	err := collection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&actualUser)
 	if err != nil {
-		log.Printf("Error while retrieving user by token: %v", err)
-		return primitive.NilObjectID
+		log.Printf("User not found: %v", err)
+		return false
 	}
-	return user.ID
+	return true
 }
 
-func UpdateUser(user models.User, newUser models.User) bool {
+func CreateORUpdateUser(newUser models.User) bool {
+	if ExistUser(newUser) {
+		return UpdateUser(newUser)
+	}
+	return CreateUser(newUser)
+}
+
+func UpdateUser(newUser models.User) bool {
 	collection := DB.Collection("users")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if newUser.Email != "" {
-		user.Email = newUser.Email
+	update := bson.M{
+		"$set": bson.M{
+			"username":   newUser.Username,
+			"email":      newUser.Email,
+			"password":   newUser.Password,
+			"updated_at": time.Now(),
+			"created_at": newUser.CreatedAt,
+		},
 	}
-	if newUser.Password != "" {
-		user.Password = newUser.Password
+	_, err := collection.UpdateOne(ctx, bson.M{"email": newUser.Email}, update)
+	if err != nil {
+		log.Printf("Error while updating user: %v", err)
+		return false
 	}
-	if newUser.Username != "" {
-		user.Username = newUser.Username
-	}
-	user.UpdatedAt = time.Now()
-	_, err := collection.UpdateByID(ctx, user.ID, bson.M{"$set": user})
+	return true
+}
+
+func CreateUser(newUser models.User) bool {
+	collection := DB.Collection("users")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := collection.InsertOne(ctx, newUser)
 	if err != nil {
 		log.Printf("Error while creating user: %v", err)
 		return false
@@ -79,46 +83,16 @@ func UpdateUser(user models.User, newUser models.User) bool {
 	return true
 }
 
-func CreateUser(user models.User) bool {
+func DeleteUser(user models.User) bool {
 	collection := DB.Collection("users")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	user.CreatedAt = time.Now()
-	user.UpdatedAt = time.Now()
-	_, err := collection.InsertOne(ctx, user)
+	_, err := collection.DeleteOne(ctx, bson.M{"email": user.Email})
 	if err != nil {
-		log.Printf("Error while creating user: %v", err)
+		log.Printf("Error while deleting user: %v", err)
 		return false
 	}
 	return true
-}
-
-func UpdateUserByEmail(email string, newUser models.User) bool {
-	var user models.User = GetUserByID(GetUserIDByEmail(email))
-	return UpdateUser(user, newUser)
-}
-
-func UpdateUserByToken(token string, newUser models.User) bool {
-	var user models.User = GetUserByID(GetUserIDByToken(token))
-	return UpdateUser(user, newUser)
-}
-
-func DeleteUserByID(id primitive.ObjectID) bool {
-	collection := DB.Collection("users")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	_, err := collection.DeleteOne(ctx, bson.M{"_id": id})
-	if err != nil {
-		log.Printf("Error while deleting user by id: %v", err)
-		return false
-	}
-	return true
-}
-
-func DeleteUserByToken(token string) bool {
-	return DeleteUserByID(GetUserIDByToken(token))
 }

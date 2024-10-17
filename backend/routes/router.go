@@ -22,9 +22,9 @@ func ServicesRoutes(router *gin.Engine) {
 		githubRoutes.GET("/", middlewares.CheckGithubToken, GithubLoggedIn)
 		githubRoutes.GET("/login", GithubLogin)
 	}
-	youtubeRoutes := router.Group("/youtube")
+	youtubeRoutes := router.Group("/youtube", middlewares.VerifyToken)
 	{
-		youtubeRoutes.GET("/", middlewares.CheckTokenCode, middlewares.CheckYoutubeCode, YoutubeLoggedIn)
+		youtubeRoutes.GET("/", middlewares.CheckYoutubeCode, YoutubeLoggedIn)
 		youtubeRoutes.GET("/liked", YoutubeLogin)
 	}
 }
@@ -35,17 +35,12 @@ func RegisterRoutes(router *gin.Engine) {
 		userRoutes.POST("/register", RegisterUser)
 		userRoutes.GET("/user/:id", GetUser)
 	}
-
-	areaRoutes := router.Group("/areas")
-	{
-		areaRoutes.POST("/create", CreateAREA)
-	}
 }
 
 func ExtraRoutes(router *gin.Engine) {
-	extraRoutes := router.Group("/extra")
+	extraRoutes := router.Group("/extra", middlewares.VerifyToken)
 	{
-		extraRoutes.GET("/me", middlewares.CheckTokenCode, GetMe)
+		extraRoutes.GET("/me", middlewares.VerifyToken, GetMe)
 	}
 }
 
