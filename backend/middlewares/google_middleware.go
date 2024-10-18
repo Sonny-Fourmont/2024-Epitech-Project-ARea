@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CheckTokenCode(c *gin.Context) {
+func CheckGoogleCode(c *gin.Context) {
 	var err error
 	code := c.Query("code")
 	if code == "" {

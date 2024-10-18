@@ -1,18 +1,19 @@
 package utils
 
 import (
-	"strconv"
+	"area/config"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var jwtKey = []byte("secret_key")
+var jwtKey = []byte(config.ConfigGin.TokenKey)
 
-func GenerateJWT(userID uint) (string, error) {
+func GenerateJWT(userID primitive.ObjectID) (string, error) {
 	claims := &jwt.StandardClaims{
 		ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
-		Subject:   strconv.FormatUint(uint64(userID), 10),
+		Subject:   userID.Hex(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(jwtKey)

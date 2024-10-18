@@ -30,7 +30,7 @@ func youtubeGetLatestTitleVideo(jsonData string) string {
 }
 
 func serviceYoutube() {
-	var apiKey string = config.LoadConfig().YTApiKey
+	var apiKey string = config.ConfigService.YoutubeApiKey
 	var channel_id string = "UCYGjxo5ifuhnmvhPvCc3DJQ" // Wankil Studio
 	var max_result int = 10
 	var max_result_str string = strconv.Itoa(max_result)
@@ -46,7 +46,7 @@ func serviceYoutube() {
 	}
 
 	var jsonBody string = string(body)
-	println("Latest video name : ", youtubeGetLatestTitleVideo(jsonBody))
+	log.Print("Latest video name : ", youtubeGetLatestTitleVideo(jsonBody))
 }
 
 func GetLastedLiked(token *oauth2.Token) ([]string, int) {
