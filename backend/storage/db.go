@@ -21,6 +21,18 @@ func ResetDatabase() {
 	if err != nil {
 		log.Fatalf("Erreur lors de la suppression des documents de la collection 'users' : %v", err)
 	}
+	_, err = DB.Collection("tokens").DeleteMany(ctx, bson.M{})
+	if err != nil {
+		log.Fatalf("Erreur lors de la suppression des documents de la collection 'tokens' : %v", err)
+	}
+	_, err = DB.Collection("services").DeleteMany(ctx, bson.M{})
+	if err != nil {
+		log.Fatalf("Erreur lors de la suppression des documents de la collection 'services' : %v", err)
+	}
+	_, err = DB.Collection("applets").DeleteMany(ctx, bson.M{})
+	if err != nil {
+		log.Fatalf("Erreur lors de la suppression des documents de la collection 'applets' : %v", err)
+	}
 }
 
 func ConnectDatabase() {

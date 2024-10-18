@@ -29,14 +29,6 @@ func ServicesRoutes(router *gin.Engine) {
 	}
 }
 
-func RegisterRoutes(router *gin.Engine) {
-	userRoutes := router.Group("/users")
-	{
-		userRoutes.POST("/register", RegisterUser)
-		userRoutes.GET("/user/:id", GetUser)
-	}
-}
-
 func ExtraRoutes(router *gin.Engine) {
 	extraRoutes := router.Group("/extra", middlewares.VerifyToken)
 	{
@@ -54,7 +46,6 @@ func AppletRoutes(router *gin.Engine) {
 
 func InitRoutes(router *gin.Engine) {
 	ExtraRoutes(router)
-	RegisterRoutes(router)
 	ServicesRoutes(router)
 	AppletRoutes(router)
 }
