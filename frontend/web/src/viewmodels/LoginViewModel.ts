@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { BACKEND_URL } from 'config';
+import { register } from 'module';
 
 export default function useLoginViewModel() {
     const [email, setEmail] = useState('');
@@ -22,7 +23,6 @@ export default function useLoginViewModel() {
             const errorData = await response.json();
             throw new Error(errorData.message || 'Failed to login user');
         }
-
         return response.json();
     }
 
