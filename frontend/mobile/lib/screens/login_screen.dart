@@ -29,7 +29,7 @@ class LoginScreenState extends State<LoginScreen> {
           }
 
           // A retirer le ! en prod
-          if (state is! AuthSuccess) {
+          if (state is AuthSuccess) {
             Navigator.pushReplacementNamed(context, '/home');
           }
         },
