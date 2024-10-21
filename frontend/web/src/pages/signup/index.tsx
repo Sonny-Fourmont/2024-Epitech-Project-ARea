@@ -7,7 +7,20 @@ import Input from '../../views/components/TextInput';
 import Link from 'next/link';
 
 export default function SignupPage() {
-    const { email, setEmail, password, setPassword, handleSignUp, confirmPassword, setConfirmPassword, firstName, setFirstName, lastName, setLastName, errors } = useSignUpViewModel();
+    const {
+        email,
+        setEmail,
+        password,
+        setPassword,
+        handleSignUp,
+        confirmPassword,
+        setConfirmPassword,
+        firstName,
+        setFirstName,
+        lastName,
+        setLastName,
+        errors
+    } = useSignUpViewModel();
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen py-2">
