@@ -27,8 +27,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         ),
       );
 
-      if (result != null && result['access_token'] != null) {
-        emit(AuthSuccess(result['access_token']));
+      if (result != null && result['token'] != null) {
+        emit(AuthSuccess(result['token']));
       } else {
         emit(AuthFailure('Google login failed'));
       }
@@ -49,8 +49,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         ),
       );
 
-      if (result != null && result['access_token'] != null) {
-        emit(AuthSuccess(result['access_token']));
+      if (result != null && result['token'] != null) {
+        emit(AuthSuccess(result['token']));
       } else {
         emit(AuthFailure('GitHub login failed'));
       }

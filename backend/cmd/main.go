@@ -24,9 +24,7 @@ func main() {
 	corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "Accept", "User-Agent"}
 	corsConfig.AllowCredentials = true
 	corsConfig.MaxAge = 12 * time.Hour
-
 	router.Use(cors.New(corsConfig))
-
 	routes.InitRoutes(router)
 
 	port := config.ConfigGin.Port
