@@ -6,8 +6,8 @@ import (
 
 	"area/config"
 	"area/routes"
-	"area/services"
 	storage "area/storage"
+	"area/utils"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -29,7 +29,7 @@ func main() {
 
 	port := config.ConfigGin.Port
 	log.Printf("Starting server on port %s...", port)
-	go services.LaunchServices()
+	go utils.LaunchServices()
 
 	router.Run(":" + port)
 }

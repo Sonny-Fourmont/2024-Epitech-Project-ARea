@@ -29,7 +29,7 @@ func youtubeGetLatestTitleVideo(jsonData string) string {
 	return latestVideo.Snippet.Title
 }
 
-func serviceYoutube() {
+func ServiceYoutube() {
 	var apiKey string = config.ConfigService.YoutubeApiKey
 	var channel_id string = "UCYGjxo5ifuhnmvhPvCc3DJQ" // Wankil Studio
 	var max_result int = 10
@@ -86,8 +86,4 @@ func GetLastedLiked(token *oauth2.Token) ([]string, int) {
 	}
 
 	return likedVideos, 200
-}
-
-func LaunchServices() {
-	serviceYoutube()
 }

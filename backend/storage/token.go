@@ -7,7 +7,30 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+func GetTokens(userID primitive.ObjectID) ([]models.Token, bool) {
+	collection := DB.Collection("tokens")
+	var tokens []models.Token
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	cursor, err := collection.Find(ctx, bson.M{"user_id": userID})
+	if err != nil {
+		log.Printf("Error while getting tokens: %v", err)
+		return tokens, false
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var token models.Token
+		cursor.Decode(&token)
+		tokens = append(tokens, token)
+	}
+	return tokens, true
+}
 
 func ExistToken(token models.Token) bool {
 	collection := DB.Collection("tokens")
