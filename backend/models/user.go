@@ -11,6 +11,6 @@ type User struct {
 	CreatedAt time.Time          `bson:"created_at, omitempty"`
 	UpdatedAt time.Time          `bson:"updated_at, omitempty"`
 	Username  string             `bson:"username" gorm:"unique"`
-	Email     string             `bson:"email" gorm:"unique"`
+	Email     string             `bson:"email, omitempty" gorm:"unique"`
 	Password  string             `bson:"password"`
 }

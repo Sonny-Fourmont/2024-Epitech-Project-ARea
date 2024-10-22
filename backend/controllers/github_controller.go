@@ -28,7 +28,6 @@ func GithubLogin(c *gin.Context) (string, int) {
 func GithubLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
 	var user models.User
 	var token models.Token
-
 	httpClient := utils.GithubOauth.Client(context.Background(), utils.GithubToken)
 	githubClient := github.NewClient(httpClient)
 	userInfo, _, err := githubClient.Users.Get(c, "")
@@ -39,7 +38,7 @@ func GithubLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
 
 	user.ID = primitive.NewObjectID()
 	user.Username = *userInfo.Name
-	user.Email = *userInfo.Email
+	user.Email = ""
 	hashedPassword, _ := utils.GenerateHash("githubAccount")
 	user.Password = hashedPassword
 	user.CreatedAt = time.Now()
@@ -54,7 +53,6 @@ func GithubLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
 	token.TokenData = utils.GithubToken
 	token.CreatedAt = time.Now()
 	token.UpdatedAt = time.Now()
-
 	if !storage.CreateORUpdateUser(user) {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
 		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
@@ -64,6 +62,5 @@ func GithubLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
 		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
 	}
-
 	return user.ID, "", http.StatusOK
 }
