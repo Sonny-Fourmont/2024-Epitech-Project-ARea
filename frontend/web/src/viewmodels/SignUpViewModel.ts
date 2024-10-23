@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { BACKEND_URL } from 'config';
-import LoginPage from '@/pages/login';
 
 export default function useSignUpViewModel() {
     const [email, setEmail] = useState('');
@@ -9,6 +9,7 @@ export default function useSignUpViewModel() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [errors, setErrors] = useState({ email: '', password: '', confirmPassword: '', firstName: '', lastName: '' });
+    const router = useRouter();
 
     const validateEmail = (email: string) => {
         const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
@@ -70,7 +71,6 @@ export default function useSignUpViewModel() {
                 password: `${password}`,
                 email: `${email}`,
             }),
-            mode: 'no-cors'
         });
 
         if (!response.ok) {
@@ -92,9 +92,9 @@ export default function useSignUpViewModel() {
                 const userData = await registerUser();
 
                 console.log(`User register successfully:`, userData);
-                LoginPage();
+                router.push('/login');
             } catch (error) {
-                console.error(' Registration error:', error);
+                console.error('Registration error:', error);
             }
         } else {
             console.error('Validation error:', errors);

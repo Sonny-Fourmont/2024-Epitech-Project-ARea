@@ -1,6 +1,6 @@
 "use client";
 
-import AppletCard from '../../views/components/AppletCard';
+import AppletCard from '../../components/AppletCard';
 
 const MyAppletsPage = () => {
     const applets = [

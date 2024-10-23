@@ -1,13 +1,26 @@
 'use strict';
 
 import useSignUpViewModel from '../../viewmodels/SignUpViewModel';
-import Button from '../../views/components/Button';
-import OAuthButtons from '../../views/components/OAuthButtons';
-import Input from '../../views/components/TextInput';
+import Button from '../../components/Button';
+import OAuthButtons from '../../components/OAuthButtons';
+import Input from '../../components/TextInput';
 import Link from 'next/link';
 
 export default function SignupPage() {
-    const { email, setEmail, password, setPassword, handleSignUp, confirmPassword, setConfirmPassword, firstName, setFirstName, lastName, setLastName, errors } = useSignUpViewModel();
+    const {
+        email,
+        setEmail,
+        password,
+        setPassword,
+        handleSignUp,
+        confirmPassword,
+        setConfirmPassword,
+        firstName,
+        setFirstName,
+        lastName,
+        setLastName,
+        errors
+    } = useSignUpViewModel();
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen py-2">
