@@ -1,0 +1,243 @@
+definitions:
+  models.AddApplet:
+    properties:
+      if:
+        type: string
+      ifType:
+        type: string
+      isOn:
+        type: boolean
+      that:
+        type: string
+      thatType:
+        type: string
+    type: object
+  models.Applet:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      id_User:
+        type: string
+      if:
+        type: string
+      ifType:
+        type: string
+      isOn:
+        type: boolean
+      that:
+        type: string
+      thatType:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.UpdateApplet:
+    properties:
+      id:
+        type: string
+      if:
+        type: string
+      ifType:
+        type: string
+      isOn:
+        type: boolean
+      that:
+        type: string
+      thatType:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /applet:
+    get:
+      description: Retrieve all applets associated with the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of user applets
+          schema:
+            items:
+              $ref: '#/definitions/models.Applet'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get all applets for the user
+      tags:
+      - applets
+    patch:
+      consumes:
+      - application/json
+      description: Update a applet for the user
+      parameters:
+      - description: Applet data
+        in: body
+        name: applet
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateApplet'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a new applet
+      tags:
+      - applets
+    post:
+      consumes:
+      - application/json
+      description: Create a new applet for the user
+      parameters:
+      - description: Applet data
+        in: body
+        name: applet
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddApplet'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Add a new applet
+      tags:
+      - applets
+  /github:
+    get:
+      description: Handles Github login callback and issues a token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Github login callback
+      tags:
+      - github
+  /github/login:
+    get:
+      description: Initiates Github OAuth login process
+      responses:
+        "302":
+          description: Found
+      summary: Redirect to Github OAuth login
+      tags:
+      - github
+  /google:
+    get:
+      description: Handles Google login callback and issues a token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Google login callback
+      tags:
+      - google
+  /google/login:
+    get:
+      description: Initiates Google OAuth login process
+      responses:
+        "302":
+          description: Found
+      summary: Redirect to Google OAuth login
+      tags:
+      - google
+  /youtube:
+    get:
+      description: Handles Youtube login callback and retrieves latest liked videos
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Youtube login callback
+      tags:
+      - youtube
+  /youtube/login:
+    get:
+      description: Initiates Youtube OAuth login process
+      responses:
+        "302":
+          description: Found
+      summary: Redirect to Youtube OAuth login
+      tags:
+      - youtube
+swagger: "2.0"
