@@ -14,8 +14,8 @@ func ServicesRoutes(router *gin.Engine) {
 	}
 	microsoftRoutes := router.Group("/microsoft")
 	{
-		microsoftRoutes.GET("/")
-		microsoftRoutes.GET("/login")
+		microsoftRoutes.GET("/", middlewares.CheckAzureCode, AzureLoggedIn)
+		microsoftRoutes.GET("/login", AzureLogin)
 	}
 	githubRoutes := router.Group("/github")
 	{
