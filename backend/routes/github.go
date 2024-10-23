@@ -8,6 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GithubLoggedIn godoc
+// @Summary Github login callback
+// @Description Handles Github login callback and issues a token
+// @Tags github
+// @Produce  json
+// @Success 200 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /github [get]
 func GithubLoggedIn(c *gin.Context) {
 	userID, errMsg, statusCode := controllers.GithubLoggedIn(c)
 	if errMsg != "" {
@@ -22,6 +30,12 @@ func GithubLoggedIn(c *gin.Context) {
 	c.JSON(statusCode, gin.H{"token": token})
 }
 
+// GithubLogin godoc
+// @Summary Redirect to Github OAuth login
+// @Description Initiates Github OAuth login process
+// @Tags github
+// @Success 302
+// @Router /github/login [get]
 func GithubLogin(c *gin.Context) {
 	url, statusCode := controllers.GithubLogin(c)
 	c.Redirect(statusCode, url)

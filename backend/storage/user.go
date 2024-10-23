@@ -9,6 +9,28 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+func GetAllUsers() ([]models.User, bool) {
+	collection := DB.Collection("users")
+	var users []models.User
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Printf("Error while getting users: %v", err)
+		return users, false
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var user models.User
+		cursor.Decode(&user)
+		users = append(users, user)
+	}
+	return users, true
+}
+
 func GetUserByEmail(email string) (models.User, bool) {
 	collection := DB.Collection("users")
 	var user models.User

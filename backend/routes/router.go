@@ -49,6 +49,7 @@ func AppletRoutes(router *gin.Engine) {
 	{
 		userRoutes.POST("/", AddApplet)
 		userRoutes.GET("/", GetApplets)
+		userRoutes.PATCH("/", UpdateApplet)
 	}
 }
 
