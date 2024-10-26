@@ -2,6 +2,9 @@ package utils
 
 import (
 	"area/config"
+	"area/models"
+	"area/storage"
+	"context"
 	"log"
 
 	"golang.org/x/oauth2"
@@ -27,4 +30,19 @@ func YoutubeLikedAuth() {
 		Endpoint: google.Endpoint,
 	}
 	log.Output(0, "Youtube OAuth configuration initialized")
+}
+
+func RefreshYoutubeToken(token models.Token) (*oauth2.Token, error) {
+	tokenSource := oauth2.ReuseTokenSource(token.TokenData, YoutubeOauth.TokenSource(context.Background(), token.TokenData))
+	newToken, err := tokenSource.Token()
+	if err != nil {
+		log.Printf("Error refreshing YouTube access token: %v", err)
+		return nil, err
+	}
+	if storage.UpdateToken(token) {
+		print("Token updated")
+	} else {
+		print("Token not updated")
+	}
+	return newToken, nil
 }

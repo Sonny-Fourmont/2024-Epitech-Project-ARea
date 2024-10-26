@@ -12,6 +12,11 @@ import (
 	"golang.org/x/oauth2"
 )
 
+func YoutubeRefreshToken(token *oauth2.Token) (*oauth2.Token, error) {
+	
+	return token, nil
+}
+
 func youtubeGetLatestTitleVideo(jsonData string) string {
 	var response models.YouTubeLatestVideoResponse
 

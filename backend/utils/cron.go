@@ -4,9 +4,41 @@ import (
 	"area/models"
 	"area/services"
 	"area/storage"
+
+	"time"
 )
 
-func runCron() {
+func RunCron() {
+	for {
+		//go refreshAllTokens()
+		go services.ServiceYoutube()
+		go LaunchServices()
+		time.Sleep(60 * time.Second)
+	}
+}
+
+func refreshAllTokens() {
+	var tokens []models.Token
+	var status bool
+	tokens, status = storage.GetAllTokens()
+	if !status {
+		println("Error while getting tokens")
+		return
+	}
+
+	for _, token := range tokens {
+		print("Refreshing token for user: ")
+		println(token.UserID.Hex())
+		println("\tToken type: " + token.Type)
+
+		if token.Type == "Youtube_liked" {
+			RefreshYoutubeToken(token)
+		} else if token.Type == "Google" {
+			//refreshGoogleToken(token.TokenData)
+		} else if token.Type == "Github" {
+			//refreshGithubToken(token.TokenData)
+		}
+	}
 
 }
 
@@ -32,7 +64,4 @@ func LaunchServices() {
 			go getUserInfo(user)
 		}
 	}
-
-	services.ServiceYoutube()
-
 }
