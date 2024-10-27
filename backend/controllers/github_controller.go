@@ -21,7 +21,7 @@ func GithubLogin(c *gin.Context) (string, int) {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "OAuth configuration is not initialized"})
 		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
-	url := utils.GithubOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	url := utils.GithubOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.SetAuthURLParam("prompt", "consent"))
 	return url, http.StatusPermanentRedirect
 }
 
