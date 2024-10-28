@@ -12,8 +12,6 @@ const Navbar: React.FC = () => {
     const navItems = [
         { label: "Home", path: "/home" },
         { label: "Applets", path: "/applets" },
-        { label: "Services", path: "/services" },
-        { label: "Contact", path: "/contact" },
     ];
 
     const renderNavButtons = () => {
@@ -25,15 +23,16 @@ const Navbar: React.FC = () => {
             />
         ));
     };
+
     return (
-        <div className="flex justify-center items-start min-h-screen">
+        <div className="flex justify-center items-start">
             <div className="bg-buttonColor w-full flex justify-between items-center">
-                <div className="flex-1 flex justify-center">
+                <div className="flex- flex justify-center">
                     {renderNavButtons()}
                 </div>
                 <NavbarButton
-                    text="Profile"
-                    onClick={() => handleNavigation("/profile")}
+                    text="Login"
+                    onClick={() => handleNavigation("/login")}
                 />
             </div>
         </div>
