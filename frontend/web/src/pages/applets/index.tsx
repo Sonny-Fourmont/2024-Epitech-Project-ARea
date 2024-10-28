@@ -54,4 +54,5 @@ const AppletsSection = ({ applets }) => (
         </div>
     </div>
 );
+
 export default MyAppletsPage;
