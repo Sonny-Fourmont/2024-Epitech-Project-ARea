@@ -27,6 +27,11 @@ func ServicesRoutes(router *gin.Engine) {
 		youtubeRoutes.GET("/", middlewares.CheckYoutubeCode, YoutubeLoggedIn)
 		youtubeRoutes.GET("/liked", YoutubeLogin)
 	}
+	spotifyRoutes := router.Group("/spotify")
+	{
+		spotifyRoutes.GET("/", middlewares.CheckSpotifyCode, SpotifyLoggedIn)
+		spotifyRoutes.GET("/login", SpotifyLogin)
+	}
 }
 
 func RegisterRoutes(router *gin.Engine) {
