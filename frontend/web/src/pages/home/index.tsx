@@ -17,9 +17,8 @@ const HomePage: React.FC = () => {
 
 const HeroSection: React.FC = () => (
     <section className="flex flex-col items-center justify-center py-20 bg-hero-pattern bg-cover bg-center text-black">
-        <h1 className="text-5xl font-bold mb-4">Welcome to Our Service</h1>
+        <h1 className="text-5xl font-bold mb-4">Welcome to Area</h1>
         <p className="text-xl mb-8">Your journey to better productivity starts here.</p>
-        <button className="px-6 py-3 bg-buttonColor hover:bg-buttonHoverColor text-white font-bold rounded">Get Started</button>
     </section>
 );
 
