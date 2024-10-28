@@ -12,7 +12,7 @@ const Button: React.FC<ButtonProps> = ({ children, onClick, type = 'button', cla
         <button
             type={type}
             onClick={onClick}
-            className={`p-2 bg-blue-500 text-white rounded hover:bg-blue-600 ${className}`}
+            className={`p-2 bg-buttonColor text-white rounded hover:bg-buttonHoverColor ${className}`}
         >
             {children}
         </button>

@@ -8,7 +8,7 @@ type NavbarButtonPros = {
 const NavbarButton: React.FC<NavbarButtonPros> = ({ text, onClick }) => {
     return (
         <button
-            className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="p-4 text-lg bg-buttonColor text-white hover:bg-buttonHoverColor"
             onClick={onClick}
         >
             {text}
