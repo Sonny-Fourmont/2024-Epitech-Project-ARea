@@ -7,6 +7,8 @@ module.exports = {
     extend: {
       colors: {
         placeholder: '#A6A39F',
+        buttonColor: '#3b82f6',
+        buttonHoverColor: '#2563eb',
       },
     },
   },
