@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 const HomePage: React.FC = () => {
     return (
@@ -9,7 +10,6 @@ const HomePage: React.FC = () => {
             <Navbar />
             <HeroSection />
             <FeaturesSection />
-            <TestimonialsSection />
             <Footer />
         </div>
     );
@@ -60,12 +60,6 @@ const TestimonialCard: React.FC<{ name: string, feedback: string }> = ({ name, f
         <p className="italic mb-4">{feedback}</p>
         <p className="font-bold">- {name}</p>
     </div>
-);
-
-const Footer: React.FC = () => (
-    <footer className="py-6 bg-gray-800 text-white text-center">
-        <p>&copy; 2024 Area Production. All rights reserved.</p>
-    </footer>
 );
 
 export default HomePage;

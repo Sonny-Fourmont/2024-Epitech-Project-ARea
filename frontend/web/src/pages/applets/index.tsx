@@ -2,6 +2,7 @@
 
 import AppletCard from '../../components/AppletCard';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 const MyAppletsPage = () => {
     const applets = [
@@ -29,6 +30,7 @@ const MyAppletsPage = () => {
         <div>
             <Navbar />
             <AppletsSection applets={applets} />
+            <Footer />
         </div>
     );
 };
