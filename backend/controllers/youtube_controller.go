@@ -6,6 +6,7 @@ import (
 	"area/models"
 	"area/services"
 	"area/storage"
+	"area/utils"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -35,6 +36,10 @@ func YoutubeLoggedIn(c *gin.Context) (string, int) {
 	token.Type = "Youtube_liked"
 	token.CreatedAt = time.Now()
 	token.UpdatedAt = time.Now()
+	token, err := utils.RefreshToken(token)
+	if err != nil {
+		return err.Error(), http.StatusInternalServerError
+	}
 
 	if !storage.CreateORUpdateToken(token) {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
@@ -43,7 +48,7 @@ func YoutubeLoggedIn(c *gin.Context) (string, int) {
 
 	var videoLikedJSON []string
 	var statusCode int
-	videoLikedJSON, statusCode = services.GetLastedLiked(token.TokenData)
+	videoLikedJSON, statusCode = services.GetLastedLiked(token)
 	jsonResponseBytes, _ := json.Marshal(videoLikedJSON)
 	return string(jsonResponseBytes), statusCode
 }

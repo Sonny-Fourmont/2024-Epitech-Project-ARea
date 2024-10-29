@@ -44,18 +44,23 @@ func GithubLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
 
-	userFromDB, found := storage.GetUserByEmail(user.Email)
-	token.UserID = user.ID
-	if found {
-		token.UserID = userFromDB.ID
+	if !storage.CreateORUpdateUser(user) {
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
+		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
 	}
+
+	userFromDB, found := storage.GetUserByEmail(user.Email)
+	if found {
+		user.ID = userFromDB.ID
+	}
+	token.UserID = user.ID
 	token.Type = "Github"
 	token.TokenData = config.GithubToken
 	token.CreatedAt = time.Now()
 	token.UpdatedAt = time.Now()
-	if !storage.CreateORUpdateUser(user) {
-		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
-		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
+	token, err = utils.RefreshToken(token)
+	if err != nil {
+		return primitive.NilObjectID, err.Error(), http.StatusInternalServerError
 	}
 
 	if !storage.CreateORUpdateToken(token) {

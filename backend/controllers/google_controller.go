@@ -47,14 +47,18 @@ func GoogleLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
 		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
 	}
 	userFromDB, found := storage.GetUserByEmail(user.Email)
-	token.UserID = user.ID
 	if found {
-		token.UserID = userFromDB.ID
+		user.ID = userFromDB.ID
 	}
+	token.UserID = user.ID
 	token.Type = "Google"
 	token.TokenData = config.GoogleToken
 	token.CreatedAt = time.Now()
 	token.UpdatedAt = time.Now()
+	token, err := utils.RefreshToken(token)
+	if err != nil {
+		return primitive.NilObjectID, err.Error(), http.StatusInternalServerError
+	}
 
 	if !storage.CreateORUpdateToken(token) {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})

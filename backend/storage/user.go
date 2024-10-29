@@ -74,13 +74,18 @@ func UpdateUser(newUser models.User) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	oldUser, status := GetUserByEmail(newUser.Email)
+	if !status {
+		return false
+	}
+
 	update := bson.M{
 		"$set": bson.M{
 			"username":   newUser.Username,
 			"email":      newUser.Email,
 			"password":   newUser.Password,
 			"updated_at": time.Now(),
-			"created_at": newUser.CreatedAt,
+			"created_at": oldUser.CreatedAt,
 		},
 	}
 	_, err := collection.UpdateOne(ctx, bson.M{"email": newUser.Email}, update)

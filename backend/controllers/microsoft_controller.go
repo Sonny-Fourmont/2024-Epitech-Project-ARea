@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"area/utils"
+	"area/config"
 	"encoding/json"
 	"net/http"
 
@@ -11,12 +11,12 @@ import (
 )
 
 func AzureLogin(c *gin.Context) (string, int) {
-	utils.AzureAuth()
-	if utils.AzureOauth == nil {
+	config.AzureAuth()
+	if config.AzureOauth == nil {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "OAuth configuration is not initialized"})
 		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
-	url := utils.AzureOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	url := config.AzureOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 	return url, http.StatusPermanentRedirect
 }
 
@@ -24,7 +24,7 @@ func AzureLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
 	// var user models.User
 	// var token models.Token
 
-	// httpClient := utils.AzureOauth.Client(context.Background(), utils.AzureToken)
+	// httpClient := config.AzureOauth.Client(context.Background(), config.AzureToken)
 
 	return primitive.NewObjectID(), "", 0
 }

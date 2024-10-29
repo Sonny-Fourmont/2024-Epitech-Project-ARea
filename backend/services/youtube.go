@@ -2,24 +2,19 @@ package services
 
 import (
 	"area/config"
-	models "area/models/youtube"
+	models "area/models"
+	modelsYoutube "area/models/youtube"
+	"area/utils"
+
 	"encoding/json"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
-
-	"golang.org/x/oauth2"
 )
 
-
-func YoutubeRefreshToken(token *oauth2.Token) (*oauth2.Token, error) {
-
-	return token, nil
-}
-
 func youtubeGetLatestTitleVideo(jsonData string) string {
-	var response models.YouTubeLatestVideoResponse
+	var response modelsYoutube.YouTubeLatestVideoResponse
 
 	err := json.Unmarshal([]byte(jsonData), &response)
 	if err != nil {
@@ -30,7 +25,7 @@ func youtubeGetLatestTitleVideo(jsonData string) string {
 		return ""
 	}
 
-	var latestVideo models.YouTubeItem = response.Items[0]
+	var latestVideo modelsYoutube.YouTubeItem = response.Items[0]
 
 	return latestVideo.Snippet.Title
 }
@@ -55,15 +50,21 @@ func ServiceYoutube() {
 	log.Print("Latest video name : ", youtubeGetLatestTitleVideo(jsonBody))
 }
 
-func GetLastedLiked(token *oauth2.Token) ([]string, int) {
+func GetLastedLiked(token models.Token) ([]string, int) {
 	url := "https://www.googleapis.com/youtube/v3/videos?myRating=like&part=snippet,contentDetails&maxResults=10"
+	var err error
+
+	token, err = utils.RefreshToken(token)
+	if err != nil {
+		return nil, 500 // StatusInternalServerError
+	}
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, 503 // StatusServiceUnavailable
 	}
 
-	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
+	req.Header.Set("Authorization", "Bearer "+token.TokenData.AccessToken)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -81,7 +82,7 @@ func GetLastedLiked(token *oauth2.Token) ([]string, int) {
 		return nil, 500 // StatusInternalServerError
 	}
 
-	var videoResponse models.Video
+	var videoResponse modelsYoutube.Video
 	if err := json.Unmarshal(body, &videoResponse); err != nil {
 		return nil, 500 // StatusInternalServerError
 	}

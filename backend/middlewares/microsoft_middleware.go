@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"area/utils"
+	"area/config"
 	"context"
 	"net/http"
 
@@ -14,10 +14,10 @@ func CheckAzureCode(c *gin.Context) {
 	if code == "" {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "code not found"})
 	}
-	if utils.AzureOauth == nil {
+	if config.AzureOauth == nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "OAuth configuration is not initialized"})
 	}
-	utils.AzureToken, err = utils.AzureOauth.Exchange(context.Background(), code)
+	config.AzureToken, err = config.AzureOauth.Exchange(context.Background(), code)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "failed to exchange code"})
 	}

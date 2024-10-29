@@ -60,13 +60,15 @@ func UpdateToken(newToken models.Token) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	oldToken := GetTokenByUserIDAndType(newToken.UserID.Hex(), newToken.Type)
+
 	update := bson.M{
 		"$set": bson.M{
 			"user_id":    newToken.UserID,
 			"type":       newToken.Type,
 			"token_data": newToken.TokenData,
 			"updated_at": time.Now(),
-			"created_at": newToken.CreatedAt,
+			"created_at": oldToken.CreatedAt,
 		},
 	}
 	_, err := collection.UpdateOne(ctx, bson.M{"user_id": newToken.UserID, "type": newToken.Type}, update)
