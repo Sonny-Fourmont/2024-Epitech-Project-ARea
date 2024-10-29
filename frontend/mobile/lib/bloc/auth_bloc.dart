@@ -6,6 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+//HOTFIX FOR ANDROID REPLACE localhost by 10.0.2.2
+
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final Dio dio = Dio();
 
@@ -18,11 +20,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   void _onGoogleLogin(GoogleLoginEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
+      String urlServer = 'http://10.0.2.2:8080/google/login';
+      // if (!) urlServer = 'http://localhost:8080/google/login';
       final result = await Navigator.push(
         event.context,
         MaterialPageRoute(
           builder: (context) => const OAuthWebView(
-            initialUrl: 'http://localhost:8080/google/login',
+            initialUrl: 'http://10.0.2.2:8080/google/login',
           ),
         ),
       );
