@@ -44,10 +44,10 @@ func SpotifyLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
 	user.UpdatedAt = time.Now()
 
 	userFromDB, found := storage.GetUserByEmail(user.Email)
-	token.UserID = user.ID
 	if found {
-		token.UserID = userFromDB.ID
+		user.ID = userFromDB.ID
 	}
+	token.UserID = user.ID
 	token.Type = "Spotify"
 	token.TokenData = config.SpotifyToken
 	token.CreatedAt = time.Now()
