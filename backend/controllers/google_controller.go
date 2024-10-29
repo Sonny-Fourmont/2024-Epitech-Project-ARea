@@ -23,7 +23,7 @@ func GoogleLogin(c *gin.Context) (string, int) {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "OAuth configuration is not initialized"})
 		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
-	url := utils.GoogleOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.SetAuthURLParam("prompt", "consent"))
+	url := utils.GoogleOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 	return url, http.StatusPermanentRedirect
 }
 
