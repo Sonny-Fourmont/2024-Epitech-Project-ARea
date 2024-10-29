@@ -1,10 +1,12 @@
 package utils
 
 import (
+	"area/config"
 	"area/models"
 	"area/services"
 	"area/storage"
 	"context"
+	"fmt"
 	"log"
 
 	"time"
@@ -23,12 +25,16 @@ func RunCron() {
 
 func refreshToken(token models.Token) (*oauth2.Token, error) {
 	var DataOauth *oauth2.Config
-	if token.Type == "Youtube_liked" {
-		DataOauth = YoutubeOauth
+	if token.TokenData.RefreshToken == "" {
+		return nil, fmt.Errorf("token %s does not have a refresh token", token.ID.Hex())
+	} else if token.Type == "Youtube_liked" {
+		DataOauth = config.YoutubeOauth
 	} else if token.Type == "Google" {
-		DataOauth = GoogleOauth
+		DataOauth = config.GoogleOauth
 	} else if token.Type == "Github" {
-		DataOauth = GithubOauth
+		DataOauth = config.GithubOauth
+	} else {
+		return nil, fmt.Errorf("unknown token type: %s", token.Type)
 	}
 
 	tokenSource := oauth2.ReuseTokenSource(token.TokenData, DataOauth.TokenSource(context.Background(), token.TokenData))
