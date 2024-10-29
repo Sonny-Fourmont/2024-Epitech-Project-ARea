@@ -32,28 +32,6 @@ func GetTokens(userID primitive.ObjectID) ([]models.Token, bool) {
 	return tokens, true
 }
 
-func GetAllTokens() ([]models.Token, bool) {
-	var users []models.User
-	var status bool
-	var tokens []models.Token
-	var tokensUser []models.Token
-	users, status = GetAllUsers()
-	if !status {
-		return nil, false
-	}
-	for _, user := range users {
-		tokensUser, status = GetTokens(user.ID)
-		if (status) {
-			tokens = append(tokens, tokensUser...)
-		}
-	}
-	if len(tokens) == 0 {
-		return nil, false
-	}
-	return tokens, true
-}
-
-
 func ExistToken(token models.Token) bool {
 	collection := DB.Collection("tokens")
 	var actualToken models.Token

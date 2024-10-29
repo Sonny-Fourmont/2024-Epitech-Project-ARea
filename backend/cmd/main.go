@@ -34,7 +34,7 @@ func main() {
 
 	port := config.ConfigGin.Port
 	log.Printf("Starting server on port %s...", port)
-	go utils.RunCron()
+	go utils.LaunchServices()
 
 	router.Run(":" + port)
 }
