@@ -151,64 +151,63 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: generateExpandedWidgets(context, platforms),
               ),
               const SizedBox(height: 40),
-              // const NavBar()
-              // FutureBuilder<List<dynamic>>(
-              //   future: getApplets(),
-                // builder: (context, snapshot) {
-                //   if (snapshot.connectionState == ConnectionState.waiting) {
-                //     return const CircularProgressIndicator();
-                //   } else if (snapshot.hasError) {
-                //     return Text("Erreur : ${snapshot.error}");
-                //   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                //     return const Text("Aucun applet trouvé");
-                //   } else {
-                //     final applets = snapshot.data!;
-                    // return Expanded(
-                    //   child: ListView.builder(
-                    //     itemCount: applets.length,
-                    //     shrinkWrap: true,
-                    //     itemBuilder: (context, index) {
-                    //       final applet = applets[index];
-                    //       return ElevatedButton(
-                    //         onPressed: () {
-                    //           showDialog(
-                    //             context: context,
-                    //             builder: (context) {
-                    //               return AlertDialog(
-                    //                 title: const Text("More information"),
-                    //                 content: Text(
-                    //                     'Status: ${applet['IsOn'] ? 'On' : 'Off'}'),
-                    //                 actions: [
-                    //                   TextButton(
-                    //                     onPressed: () {
-                    //                       Navigator.of(context).pop();
-                    //                     },
-                    //                     child: const Text('Close'),
-                    //                   ),
-                    //                 ],
-                    //               );
-                    //             },
-                    //           );
-                    //         },
-                    //         style: ElevatedButton.styleFrom(
-                    //             backgroundColor:
-                    //                 const Color.fromARGB(255, 217, 217, 217),
-                    //             foregroundColor:
-                    //                 const Color.fromARGB(255, 43, 42, 40),
-                    //             elevation: 8,
-                    //             shadowColor: Colors.black.withOpacity(0.5),
-                    //             alignment: Alignment.center),
-                    //         child: Text(
-                    //           "ACTION : ${applet['If']}\nREACTION : ${applet['That']}",
-                    //           textAlign: TextAlign.center,
-                    //         ),
-                    //       );
-                    //     },
-                    //   ),
-                    // );
-                //   }
-                // },
-              // ),
+              FutureBuilder<List<dynamic>>(
+                future: getApplets(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text("Erreur : ${snapshot.error}");
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Text("Aucun applet trouvé");
+                  } else {
+                    final applets = snapshot.data!;
+                    return Expanded(
+                      child: ListView.builder(
+                        itemCount: applets.length,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          final applet = applets[index];
+                          return ElevatedButton(
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text("More information"),
+                                    content: Text(
+                                        'Status: ${applet['IsOn'] ? 'On' : 'Off'}'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Close'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 217, 217, 217),
+                                foregroundColor:
+                                    const Color.fromARGB(255, 43, 42, 40),
+                                elevation: 8,
+                                shadowColor: Colors.black.withOpacity(0.5),
+                                alignment: Alignment.center),
+                            child: Text(
+                              "ACTION : ${applet['If']}\nREACTION : ${applet['That']}",
+                              textAlign: TextAlign.center,
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  }
+                },
+              ),
             ]),
           ],
         ),
