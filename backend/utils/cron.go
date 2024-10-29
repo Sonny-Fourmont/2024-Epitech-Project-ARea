@@ -66,7 +66,6 @@ func refreshAllTokens() {
 		println("\tToken type: " + token.Type)
 		refreshToken(token)
 	}
-
 }
 
 func getUserInfo(user models.User) ([]models.Token, bool) {
@@ -91,4 +90,7 @@ func LaunchServices() {
 			go getUserInfo(user)
 		}
 	}
+
+	services.ServiceYoutube()
+
 }

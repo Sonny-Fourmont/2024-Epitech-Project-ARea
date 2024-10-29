@@ -1,13 +1,19 @@
 "use client";
 
 import useLoginViewModel from '../../viewmodels/LoginViewModel';
-import Button from '../../views/components/Button';
-import OAuthButtons from '../../views/components/OAuthButtons';
-import Input from '../../views/components/TextInput';
+import Button from '../../components/Button';
+import OAuthButtons from '../../components/OAuthButtons';
+import Input from '../../components/TextInput';
 import Link from 'next/link';
 
 export default function LoginPage() {
-    const { email, setEmail, password, setPassword, handleLogin } = useLoginViewModel();
+    const {
+        email,
+        setEmail,
+        password,
+        setPassword,
+        handleLogin
+    } = useLoginViewModel();
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen py-2">
