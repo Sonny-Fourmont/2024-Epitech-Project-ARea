@@ -72,3 +72,21 @@ func GetUser(c *gin.Context) (string, int) {
 func GetMe(c *gin.Context) (string, int) {
 	return middlewares.GetClient(c).Hex(), http.StatusOK
 }
+
+func LoginUser(c *gin.Context) (primitive.ObjectID, string, int) {
+	var user models.User
+
+	if err := c.ShouldBindJSON(&user); err != nil {
+		return primitive.NilObjectID, "Invalid JSON", http.StatusInternalServerError
+	}
+
+	userDB, exists := storage.GetUserByEmail(user.Email)
+	if !exists {
+		return primitive.NilObjectID, "Failed to login user", http.StatusBadRequest
+	}
+	if !utils.CheckHashPassword(user.Password, userDB.Password) {
+		return primitive.NilObjectID, "Failed to login user", http.StatusBadRequest
+	}
+
+	return userDB.ID, "User login successfully", http.StatusOK
+}

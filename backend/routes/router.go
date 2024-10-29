@@ -29,11 +29,12 @@ func ServicesRoutes(router *gin.Engine) {
 	}
 }
 
-func RegisterRoutes(router *gin.Engine) {
+func UserRoutes(router *gin.Engine) {
 	userRoutes := router.Group("/users")
 	{
 		userRoutes.POST("/register", RegisterUser)
 		userRoutes.GET("/user/:id", GetUser)
+		userRoutes.POST("/login", LoginUser)
 	}
 }
 
@@ -55,7 +56,7 @@ func AppletRoutes(router *gin.Engine) {
 
 func InitRoutes(router *gin.Engine) {
 	ExtraRoutes(router)
-	RegisterRoutes(router)
+	UserRoutes(router)
 	ServicesRoutes(router)
 	AppletRoutes(router)
 }
