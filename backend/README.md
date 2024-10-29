@@ -23,6 +23,8 @@ docker compose -f docker-compose.prod.yml up --build
 - POST `/user/register` Register users in database
 
 - GET `/user/{id}` Get a user by his ID
+
+- POST `/user/login` Login user from the database
 ### Applet routes (Applet = Action -> Reaction):
 - POST `/applet` Create an applet
 
@@ -48,6 +50,10 @@ docker compose -f docker-compose.prod.yml up --build
     - GET `/microsoft/register` Get a microsoft register link
 
     - GET `/microsoft/login` Get a microsoft login link
+- ### Spotify routes:
+    - GET `/spotify` (LOGIN REQUIRED) return the spotify token
+
+    - GET `/spotify/login` Get a spotify login link
 
 ## Technologies Used
 - ![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)
