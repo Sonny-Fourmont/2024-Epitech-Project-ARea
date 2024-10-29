@@ -20,7 +20,7 @@ func SpotifyLogin(c *gin.Context) (string, int) {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "OAuth configuration is not initialized"})
 		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
-	url := utils.SpotifyOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	url := utils.SpotifyOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.SetAuthURLParam("prompt", "consent"))
 	return url, http.StatusPermanentRedirect
 }
 
