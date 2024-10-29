@@ -33,6 +33,9 @@ type ConfigServiceS struct {
 	YoutubeClientSecret string
 	YoutubeRedirectUri  string
 	YoutubeApiKey       string
+	SpotifyClientId     string
+	SpotifyClientSecret string
+	SpotifyRedirectUri  string
 }
 
 var ConfigService ConfigServiceS
@@ -70,11 +73,17 @@ func LoadConfig() {
 		YoutubeClientSecret: getEnv("YOUTUBE_CLIENT_SECRET", ""),
 		YoutubeRedirectUri:  getEnv("YOUTUBE_REDIRECT_URI", ""),
 		YoutubeApiKey:       getEnv("YOUTUBE_API_KEY", ""),
+
+		SpotifyClientId:     getEnv("SPOTIFY_CLIENT_ID", ""),
+		SpotifyClientSecret: getEnv("SPOTIFY_CLIENT_SECRET", ""),
+		SpotifyRedirectUri:  getEnv("SPOTIFY_REDIRECT_URI", ""),
 	}
 
 	GithubAuth()
 	GoogleAuth()
 	YoutubeLikedAuth()
+	AzureAuth()
+	SpotifyAuth()
 }
 
 func getEnv(key, defaultValue string) string {
