@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"area/config"
 	"area/models"
 	"area/storage"
 	"area/utils"
@@ -18,12 +19,11 @@ import (
 )
 
 func GoogleLogin(c *gin.Context) (string, int) {
-	utils.GoogleAuth()
-	if utils.GoogleOauth == nil {
+	if config.GoogleOauth == nil {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "OAuth configuration is not initialized"})
 		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
-	url := utils.GoogleOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	url := config.GoogleOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.SetAuthURLParam("prompt", "consent"))
 	return url, http.StatusPermanentRedirect
 }
 
@@ -31,7 +31,7 @@ func GoogleLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
 	var user models.User
 	var token models.Token
 
-	httpClient := utils.GoogleOauth.Client(context.Background(), utils.GoogleToken)
+	httpClient := config.GoogleOauth.Client(context.Background(), config.GoogleToken)
 	gmail, _ := gmail.NewService(context.Background(), option.WithHTTPClient(httpClient))
 	googleUser, _ := gmail.Users.GetProfile("me").Do()
 
@@ -47,14 +47,18 @@ func GoogleLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
 		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
 	}
 	userFromDB, found := storage.GetUserByEmail(user.Email)
-	token.UserID = user.ID
 	if found {
-		token.UserID = userFromDB.ID
+		user.ID = userFromDB.ID
 	}
+	token.UserID = user.ID
 	token.Type = "Google"
-	token.TokenData = utils.GoogleToken
+	token.TokenData = config.GoogleToken
 	token.CreatedAt = time.Now()
 	token.UpdatedAt = time.Now()
+	token, err := utils.RefreshToken(token)
+	if err != nil {
+		return primitive.NilObjectID, err.Error(), http.StatusInternalServerError
+	}
 
 	if !storage.CreateORUpdateToken(token) {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})

@@ -1,7 +1,6 @@
-package utils
+package config
 
 import (
-	"area/config"
 	"log"
 
 	"github.com/joho/godotenv"
@@ -14,13 +13,13 @@ var GoogleToken *oauth2.Token
 
 func GoogleAuth() {
 	godotenv.Load()
-	client_id := config.ConfigService.GoogleClientId
-	client_secret := config.ConfigService.GoogleClientSecret
+	client_id := ConfigService.GoogleClientId
+	client_secret := ConfigService.GoogleClientSecret
 
 	GoogleOauth = &oauth2.Config{
 		ClientID:     client_id,
 		ClientSecret: client_secret,
-		RedirectURL:  config.ConfigService.GoogleRedirectUri,
+		RedirectURL:  ConfigService.GoogleRedirectUri,
 		Scopes: []string{
 			"https://www.googleapis.com/auth/gmail.modify",
 			"https://www.googleapis.com/auth/gmail.send",

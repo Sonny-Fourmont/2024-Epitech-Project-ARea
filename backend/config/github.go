@@ -1,7 +1,6 @@
-package utils
+package config
 
 import (
-	"area/config"
 	"log"
 
 	"golang.org/x/oauth2"
@@ -12,13 +11,13 @@ var GithubOauth *oauth2.Config
 var GithubToken *oauth2.Token
 
 func GithubAuth() {
-	clientId := config.ConfigService.GithubClientId
-	clientSecret := config.ConfigService.GithubClientSecret
+	clientId := ConfigService.GithubClientId
+	clientSecret := ConfigService.GithubClientSecret
 
 	GithubOauth = &oauth2.Config{
 		ClientID:     clientId,
 		ClientSecret: clientSecret,
-		RedirectURL:  config.ConfigService.GithubRedirectUri,
+		RedirectURL:  ConfigService.GithubRedirectUri,
 		Scopes: []string{
 			"user",
 		},

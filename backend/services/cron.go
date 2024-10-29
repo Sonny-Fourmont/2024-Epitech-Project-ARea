@@ -1,13 +1,18 @@
-package utils
+package services
 
 import (
 	"area/models"
-	"area/services"
 	"area/storage"
+
+	"time"
 )
 
-func runCron() {
-
+func RunCron() {
+	for {
+		go ServiceYoutube()
+		go LaunchServices()
+		time.Sleep(60 * time.Second)
+	}
 }
 
 func getUserInfo(user models.User) ([]models.Token, bool) {
@@ -32,7 +37,4 @@ func LaunchServices() {
 			go getUserInfo(user)
 		}
 	}
-
-	services.ServiceYoutube()
-
 }

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"area/config"
 	"area/middlewares"
 	"area/models"
 	"area/services"
@@ -17,12 +18,11 @@ import (
 
 // Require Token Middleware
 func YoutubeLogin(c *gin.Context) (string, int) {
-	utils.YoutubeLikedAuth()
-	if utils.YoutubeOauth == nil {
+	if config.YoutubeOauth == nil {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "OAuth configuration is not initialized"})
 		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
-	url := utils.YoutubeOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	url := config.YoutubeOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.SetAuthURLParam("prompt", "consent"))
 	return url, http.StatusPermanentRedirect
 }
 
@@ -32,10 +32,14 @@ func YoutubeLoggedIn(c *gin.Context) (string, int) {
 
 	token.ID = primitive.NewObjectID()
 	token.UserID = middlewares.GetClient(c)
-	token.TokenData = utils.YoutubeToken
+	token.TokenData = config.YoutubeToken
 	token.Type = "Youtube_liked"
 	token.CreatedAt = time.Now()
 	token.UpdatedAt = time.Now()
+	token, err := utils.RefreshToken(token)
+	if err != nil {
+		return err.Error(), http.StatusInternalServerError
+	}
 
 	if !storage.CreateORUpdateToken(token) {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
@@ -44,7 +48,7 @@ func YoutubeLoggedIn(c *gin.Context) (string, int) {
 
 	var videoLikedJSON []string
 	var statusCode int
-	videoLikedJSON, statusCode = services.GetLastedLiked(token.TokenData)
+	videoLikedJSON, statusCode = services.GetLastedLiked(token)
 	jsonResponseBytes, _ := json.Marshal(videoLikedJSON)
 	return string(jsonResponseBytes), statusCode
 }

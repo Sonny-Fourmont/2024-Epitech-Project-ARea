@@ -1,7 +1,6 @@
-package utils
+package config
 
 import (
-	"area/config"
 	"log"
 
 	"golang.org/x/oauth2"
@@ -12,13 +11,13 @@ var YoutubeOauth *oauth2.Config
 var YoutubeToken *oauth2.Token
 
 func YoutubeLikedAuth() {
-	client_id := config.ConfigService.YoutubeClientId
-	client_secret := config.ConfigService.YoutubeClientSecret
+	client_id := ConfigService.YoutubeClientId
+	client_secret := ConfigService.YoutubeClientSecret
 
 	YoutubeOauth = &oauth2.Config{
 		ClientID:     client_id,
 		ClientSecret: client_secret,
-		RedirectURL:  config.ConfigService.YoutubeRedirectUri,
+		RedirectURL:  ConfigService.YoutubeRedirectUri,
 		Scopes: []string{
 			"https://www.googleapis.com/auth/youtube.readonly",
 			"https://www.googleapis.com/auth/youtube",

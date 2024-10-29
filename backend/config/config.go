@@ -71,6 +71,10 @@ func LoadConfig() {
 		YoutubeRedirectUri:  getEnv("YOUTUBE_REDIRECT_URI", ""),
 		YoutubeApiKey:       getEnv("YOUTUBE_API_KEY", ""),
 	}
+
+	GithubAuth()
+	GoogleAuth()
+	YoutubeLikedAuth()
 }
 
 func getEnv(key, defaultValue string) string {
