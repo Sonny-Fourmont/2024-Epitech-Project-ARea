@@ -82,6 +82,8 @@ func LoadConfig() {
 	GithubAuth()
 	GoogleAuth()
 	YoutubeLikedAuth()
+	AzureAuth()
+	SpotifyAuth()
 }
 
 func getEnv(key, defaultValue string) string {

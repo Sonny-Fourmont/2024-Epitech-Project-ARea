@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"area/config"
 	"area/models"
 	"area/storage"
 	"area/utils"
@@ -15,12 +16,11 @@ import (
 )
 
 func SpotifyLogin(c *gin.Context) (string, int) {
-	utils.SpotifyAuth()
-	if utils.SpotifyOauth == nil {
+	if config.SpotifyOauth == nil {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "OAuth configuration is not initialized"})
 		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
-	url := utils.SpotifyOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.SetAuthURLParam("prompt", "consent"))
+	url := config.SpotifyOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline, oauth2.SetAuthURLParam("prompt", "consent"))
 	return url, http.StatusPermanentRedirect
 }
 
@@ -28,7 +28,7 @@ func SpotifyLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
 	var user models.User
 	var token models.Token
 
-	client := spotify.Authenticator{}.NewClient(utils.SpotifyToken)
+	client := spotify.Authenticator{}.NewClient(config.SpotifyToken)
 	userInfo, err := client.CurrentUser()
 	if err != nil {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
@@ -49,7 +49,7 @@ func SpotifyLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
 		token.UserID = userFromDB.ID
 	}
 	token.Type = "Spotify"
-	token.TokenData = utils.SpotifyToken
+	token.TokenData = config.SpotifyToken
 	token.CreatedAt = time.Now()
 	token.UpdatedAt = time.Now()
 	if !storage.CreateORUpdateUser(user) {

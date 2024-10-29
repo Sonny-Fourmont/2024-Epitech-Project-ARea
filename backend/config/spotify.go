@@ -1,7 +1,6 @@
-package utils
+package config
 
 import (
-	"area/config"
 	"log"
 
 	"github.com/joho/godotenv"
@@ -14,13 +13,13 @@ var SpotifyToken *oauth2.Token
 
 func SpotifyAuth() {
 	godotenv.Load()
-	client_id := config.ConfigService.SpotifyClientId
-	client_secret := config.ConfigService.SpotifyClientSecret
+	client_id := ConfigService.SpotifyClientId
+	client_secret := ConfigService.SpotifyClientSecret
 
 	SpotifyOauth = &oauth2.Config{
 		ClientID:     client_id,
 		ClientSecret: client_secret,
-		RedirectURL:  config.ConfigService.SpotifyRedirectUri,
+		RedirectURL:  ConfigService.SpotifyRedirectUri,
 		Scopes: []string{
 			"user-read-email",
 			"user-read-private",
