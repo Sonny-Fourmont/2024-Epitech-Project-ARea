@@ -9,8 +9,17 @@ import (
 )
 
 func RegisterUser(c *gin.Context) {
-	jsonResp, statusCode := controllers.RegisterUser(c)
-	c.JSON(statusCode, jsonResp)
+	userID, resp, statusCode := controllers.RegisterUser(c)
+	if statusCode == http.StatusInternalServerError {
+		c.JSON(statusCode, gin.H{"error": resp})
+		return
+	}
+	token, err := utils.GenerateJWT(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(statusCode, gin.H{"message": resp, "token": token})
 }
 
 func GetUser(c *gin.Context) {

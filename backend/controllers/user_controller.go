@@ -15,12 +15,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func RegisterUser(c *gin.Context) (string, int) {
+func RegisterUser(c *gin.Context) (primitive.ObjectID, string, int) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Invalid JSON"})
-		return string(jsonResponseBytes), http.StatusBadRequest
-
+		return primitive.NilObjectID, "Invalid JSON", http.StatusInternalServerError
 	}
 
 	hashedPassword, _ := utils.GenerateHash(user.Password)
@@ -32,11 +30,9 @@ func RegisterUser(c *gin.Context) (string, int) {
 
 	_, err := collection.InsertOne(ctx, user)
 	if err != nil {
-		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
-		return string(jsonResponseBytes), http.StatusInternalServerError
+		return primitive.NilObjectID, "Failed to create user", http.StatusInternalServerError
 	}
-	jsonResponseBytes, _ := json.Marshal(map[string]string{"message": "User registered successfully"})
-	return string(jsonResponseBytes), http.StatusOK
+	return user.ID, "User registered successfully", http.StatusOK
 }
 
 func GetUser(c *gin.Context) (string, int) {
