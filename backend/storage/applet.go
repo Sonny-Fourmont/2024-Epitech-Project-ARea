@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func ExistApplet(applet models.Applet) bool {
@@ -100,7 +101,7 @@ func GetApplet(userID string, ifType string, thatType string) models.Applet {
 	return applet
 }
 
-func GetApplets(userID string) []models.Applet {
+func GetApplets(userID primitive.ObjectID) []models.Applet {
 	collection := DB.Collection("applets")
 	var applets []models.Applet
 	var applet models.Applet

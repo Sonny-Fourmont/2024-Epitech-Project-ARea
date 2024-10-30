@@ -8,11 +8,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // Require Token Middleware
 func GetApplets(c *gin.Context) (string, int) {
-	var clientID string = middlewares.GetClient(c).Hex()
+	var clientID primitive.ObjectID = middlewares.GetClient(c)
 	var applets []models.Applet = storage.GetApplets(clientID)
 
 	response := struct {

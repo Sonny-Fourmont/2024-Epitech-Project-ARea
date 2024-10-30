@@ -4,7 +4,6 @@ import (
 	"area/config"
 	"area/middlewares"
 	"area/models"
-	"area/services"
 	"area/storage"
 	"area/utils"
 	"encoding/json"
@@ -33,7 +32,7 @@ func YoutubeLoggedIn(c *gin.Context) (string, int) {
 	token.ID = primitive.NewObjectID()
 	token.UserID = middlewares.GetClient(c)
 	token.TokenData = config.YoutubeToken
-	token.Type = "Youtube_liked"
+	token.Type = "Youtube"
 	token.CreatedAt = time.Now()
 	token.UpdatedAt = time.Now()
 	token, err := utils.RefreshToken(token)
@@ -46,9 +45,7 @@ func YoutubeLoggedIn(c *gin.Context) (string, int) {
 		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
 
-	var videoLikedJSON []string
 	var statusCode int
-	videoLikedJSON, statusCode = services.GetLastedLiked(token)
-	jsonResponseBytes, _ := json.Marshal(videoLikedJSON)
+	jsonResponseBytes, _ := json.Marshal(map[string]string{"message": "Youtube login successfully"})
 	return string(jsonResponseBytes), statusCode
 }

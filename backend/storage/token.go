@@ -110,11 +110,13 @@ func DeleteToken(token models.Token) bool {
 func GetTokenByUserIDAndType(userID string, tokenType string) models.Token {
 	collection := DB.Collection("tokens")
 	var token models.Token
+	var userObjectID primitive.ObjectID
+	userObjectID, err := primitive.ObjectIDFromHex(userID)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := collection.FindOne(ctx, bson.M{"user_id": userID, "type": tokenType}).Decode(&token)
+	err = collection.FindOne(ctx, bson.M{"user_id": userObjectID, "type": tokenType}).Decode(&token)
 	if err != nil {
 		log.Printf("Error while retrieving token by user_id and type: %v", err)
 		return models.Token{}

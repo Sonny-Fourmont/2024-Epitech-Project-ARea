@@ -9,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func GetAllUsers() ([]models.User, bool) {
+func GetAllUsers() []models.User {
 	collection := DB.Collection("users")
 	var users []models.User
 
@@ -19,7 +19,7 @@ func GetAllUsers() ([]models.User, bool) {
 	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
 		log.Printf("Error while getting users: %v", err)
-		return users, false
+		return users
 	}
 	defer cursor.Close(ctx)
 
@@ -28,7 +28,7 @@ func GetAllUsers() ([]models.User, bool) {
 		cursor.Decode(&user)
 		users = append(users, user)
 	}
-	return users, true
+	return users
 }
 
 func GetUserByEmail(email string) (models.User, bool) {
