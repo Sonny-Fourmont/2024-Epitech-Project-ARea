@@ -59,12 +59,15 @@ func LatestVideoAction(userID string, this string) []string {
 	}
 
 	fmt.Println("Executing Latest Video Action")
-	channelID, err := GetChannelIDByName(token.TokenData.AccessToken, this) // UCYGjxo5ifuhnmvhPvCc3DJQ wankilfr
+	channelID, err := GetChannelIDByName(token.TokenData.AccessToken, this)
 	if err != nil {
 		fmt.Println(err)
 		return result
 	}
-	maxResults := 10
+	if channelID == "" {
+		return result
+	}
+	maxResults := 1
 	url := fmt.Sprintf("https://www.googleapis.com/youtube/v3/search?channelId=%s&order=date&part=snippet&type=video&maxResults=%d", channelID, maxResults)
 
 	req, err := http.NewRequest("GET", url, nil)

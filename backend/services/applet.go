@@ -14,7 +14,21 @@ func runApplet(applet models.Applet) {
 
 	if action, exists := actions[applet.IfType]; exists {
 		response = action(applet.ID_User.Hex(), applet.If)
-		fmt.Println("Action succes :", response)
+		if len(response) == 0 {
+			fmt.Println("Action failed")
+			return
+		}
+		var notExist bool = storage.StoreAndCheckResponse(applet.ID, response, applet.If)
+		if notExist {
+			fmt.Println("Action succes :", response)
+			if reAction, exists := reActions[applet.ThatType]; exists {
+				reAction(applet.ID_User.Hex(), applet.That, response)
+			} else {
+				fmt.Println("ReAction non trouvée :", applet.ThatType)
+			}
+		} else {
+			fmt.Println("Action already have been executed")
+		}
 	} else {
 		fmt.Println("Action non trouvée :", applet.IfType)
 	}
