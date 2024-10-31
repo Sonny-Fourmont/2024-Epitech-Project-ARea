@@ -20,7 +20,7 @@ func RefreshToken(token models.Token) (models.Token, error) {
 
 	if token.TokenData.RefreshToken == "" {
 		return token, fmt.Errorf("token %s does not have a refresh token", token.ID.Hex())
-	} else if token.Type == "Youtube_liked" {
+	} else if token.Type == "Youtube" {
 		DataOauth = config.YoutubeOauth
 	} else if token.Type == "Google" {
 		DataOauth = config.GoogleOauth
