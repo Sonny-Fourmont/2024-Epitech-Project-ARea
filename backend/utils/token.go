@@ -26,6 +26,8 @@ func RefreshToken(token models.Token) (models.Token, error) {
 		DataOauth = config.GoogleOauth
 	} else if token.Type == "Github" {
 		DataOauth = config.GithubOauth
+	} else if token.Type == "Spotify" {
+		DataOauth = config.SpotifyOauth
 	} else {
 		return token, fmt.Errorf("unknown token type: %s", token.Type)
 	}
