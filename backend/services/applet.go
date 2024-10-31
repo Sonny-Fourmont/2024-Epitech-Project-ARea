@@ -18,7 +18,7 @@ func runApplet(applet models.Applet) {
 			fmt.Println("Action failed")
 			return
 		}
-		var notExist bool = storage.StoreAndCheckResponse(applet.ID, response, applet.If)
+		var notExist bool = storage.StoreAndCheckResponse(applet.ID, response, applet.IfType)
 		if notExist {
 			fmt.Println("Action succes :", response)
 			if reAction, exists := reActions[applet.ThatType]; exists {

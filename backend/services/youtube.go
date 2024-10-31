@@ -13,7 +13,7 @@ import (
 )
 
 func GetChannelIDByName(token string, channelName string) (string, error) {
-	url := fmt.Sprintf("https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=%s", channelName)
+	url := fmt.Sprintf("https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=%s&maxResults=%d", channelName, 1)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

@@ -13,7 +13,8 @@ import (
 
 func StoreAndCheckResponse(appletID primitive.ObjectID, response []string, ifType string) bool {
 
-	service := GetServiceByAppletIDAndType(appletID.Hex(), ifType)
+	service := GetServiceByAppletIDAndType(appletID, ifType)
+
 	if service.AppletID != primitive.NilObjectID {
 		if reflect.DeepEqual(service.Latest, response) {
 			return false
@@ -32,7 +33,6 @@ func ExistService(service models.Service) bool {
 
 	err := collection.FindOne(ctx, bson.M{"applet_id": service.AppletID, "type": service.Type}).Decode(&actualService)
 	if err != nil {
-		log.Printf("Service not found: %v", err)
 		return false
 	}
 	return true
@@ -94,7 +94,7 @@ func DeleteService(service models.Service) bool {
 	return true
 }
 
-func GetServiceByAppletIDAndType(appletID string, serviceType string) models.Service {
+func GetServiceByAppletIDAndType(appletID primitive.ObjectID, serviceType string) models.Service {
 	collection := DB.Collection("services")
 	var service models.Service
 
@@ -103,7 +103,6 @@ func GetServiceByAppletIDAndType(appletID string, serviceType string) models.Ser
 
 	err := collection.FindOne(ctx, bson.M{"applet_id": appletID, "type": serviceType}).Decode(&service)
 	if err != nil {
-		log.Printf("Error while retrieving service by user_id and type: %v", err)
 		return models.Service{}
 	}
 	return service
