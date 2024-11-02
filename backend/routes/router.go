@@ -44,7 +44,7 @@ func UserRoutes(router *gin.Engine) {
 }
 
 func AppletRoutes(router *gin.Engine) {
-	userRoutes := router.Group("/applet")
+	userRoutes := router.Group("/applet", middlewares.VerifyToken)
 	{
 		userRoutes.POST("/", AddApplet)
 		userRoutes.GET("/", GetApplets)
