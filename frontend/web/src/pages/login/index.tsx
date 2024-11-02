@@ -12,7 +12,8 @@ export default function LoginPage() {
         setEmail,
         password,
         setPassword,
-        handleLogin
+        handleLogin,
+        errors
     } = useLoginViewModel();
 
     return (
@@ -26,6 +27,7 @@ export default function LoginPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="exemple@gmail.com"
+                        error={errors.email}
                     />
                     <Input
                         label="Mot de passe"
@@ -34,6 +36,7 @@ export default function LoginPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••••••"
                         showPasswordToggle={true}
+                        error={errors.password}
                     />
                 </div>
                 <Button type="submit" className="w-full" onClick={handleLogin}>
