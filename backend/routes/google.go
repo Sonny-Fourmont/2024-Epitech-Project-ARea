@@ -34,7 +34,7 @@ func GoogleLoggedIn(c *gin.Context) {
 // @Summary Redirect to Google OAuth login
 // @Description Initiates Google OAuth login process
 // @Tags google
-// @Success 302
+// @Success 302 "Redirect"
 // @Router /google/login [get]
 func GoogleLogin(c *gin.Context) {
 	url, statusCode := controllers.GoogleLogin(c)

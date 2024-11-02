@@ -8,6 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// AzureLoggedIn godoc
+// @Summary Azure login callback
+// @Description Handles Azure login callback and issues a token
+// @Tags microsoft
+// @Produce  json
+// @Success 200 {object} map[string]string "Token"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /microsoft [get]
 func AzureLoggedIn(c *gin.Context) {
 	userId, errMsg, statusCode := controllers.AzureLoggedIn(c)
 	if errMsg != "" {
@@ -22,6 +30,12 @@ func AzureLoggedIn(c *gin.Context) {
 	c.JSON(statusCode, gin.H{"token": token})
 }
 
+// AzureLogin godoc
+// @Summary Redirect to Azure OAuth login
+// @Description Initiates Azure OAuth login process
+// @Tags microsoft
+// @Success 302 "Redirect"
+// @Router /microsoft/login [get]
 func AzureLogin(c *gin.Context) {
 	url, statusCode := controllers.AzureLogin(c)
 	c.Redirect(statusCode, url)
