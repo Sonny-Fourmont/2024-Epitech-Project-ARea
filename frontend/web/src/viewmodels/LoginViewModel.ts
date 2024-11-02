@@ -69,6 +69,7 @@ export default function useLoginViewModel() {
                 console.error('Login error');
             } else {
                 console.log(`User logged in successfully:`, userData);
+                localStorage.setItem("Authorization", `Bearer ${userData.token}`)
                 router.push('/home');
             }
         } else {
