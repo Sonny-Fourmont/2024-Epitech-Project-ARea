@@ -28,8 +28,7 @@ func GithubLoggedIn(c *gin.Context) {
 		return
 	}
 	if statusCode == http.StatusOK {
-		c.Header("Authorization", token)
-		c.Redirect(http.StatusPermanentRedirect, "http://localhost:3000/home")
+		c.Redirect(http.StatusPermanentRedirect, "http://localhost:3000/home?token="+token)
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 	}
