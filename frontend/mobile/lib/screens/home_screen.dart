@@ -1,226 +1,250 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import '../component/appBar.dart';
 import '../component/navBar.dart';
 import '../component/searchBar.dart'; 
 
 
+class Applet {
+  final String id;
+  final String idUser;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final bool isOn;
+  final String ifCondition;
+  final String thatCondition;
+  final String ifType;
+  final String thatType;
+
+  Applet({
+    required this.id,
+    required this.idUser,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.isOn,
+    required this.ifCondition,
+    required this.thatCondition,
+    required this.ifType,
+    required this.thatType,
+  });
+
+  factory Applet.fromJson(Map<String, dynamic> json) {
+    return Applet(
+      id: json['ID'],
+      idUser: json['ID_User'],
+      createdAt: DateTime.parse(json['CreatedAt']),
+      updatedAt: DateTime.parse(json['UpdatedAt']),
+      isOn: json['IsOn'],
+      ifCondition: json['If'],
+      thatCondition: json['That'],
+      ifType: json['IfType'],
+      thatType: json['ThatType'],
+    );
+  }
+}
+
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final String? token;
+
+  const HomeScreen({super.key, required this.token});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<String> callFunctionServices() {
-    return ["Microsoft", "GitHub", "Google"];
+  late Future<List<Applet>> futureApplets;
+
+  @override
+  void initState() {
+    super.initState();
+    futureApplets = fetchApplets();
   }
 
-  Future<List<dynamic>> getApplets() async {
-    String? token = dotenv.env['DEV_TOKEN'];
-    String apiAppletUrl = dotenv.env['API_APPLET_URL']!;
-    if (token == null) {
-      throw Exception("Token non disponible");
-    }
+  @override
+  void didUpdateWidget(HomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    futureApplets = fetchApplets();
+  }
 
+  Future<List<Applet>> fetchApplets() async {
+    final apiAppletUrl = dotenv.env['API_APPLET_URL']!;
+    final token = widget.token;
     final response = await http.get(
       Uri.parse(apiAppletUrl),
       headers: {
-        'access_token': token,
+        'Authorization': 'Bearer $token',
       },
     );
-
+  
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['applet_array'];
+      try {
+        final decodedJson = json.decode(response.body);
+        if (decodedJson is String) {
+          final jsonString = decodedJson;
+          final Map<String, dynamic> jsonMap = json.decode(jsonString);
+
+          final List<dynamic> appletArray = jsonMap['applet_array'];
+
+          return appletArray.map((appletJson) => Applet.fromJson(appletJson)).toList();
+        } else if (decodedJson is Map<String, dynamic>) {
+          final List<dynamic> appletArray = decodedJson['applet_array'];
+
+          return appletArray.map((appletJson) => Applet.fromJson(appletJson)).toList();
+        } else {
+          return [];
+        }
+      } catch (e) {
+        return [];
+      }
     } else {
       throw Exception("Failed to load applets");
     }
+}
+
+  Widget buildAppletsList(List<Applet> applets) {
+    return ListView.builder(
+      itemCount: applets.length,
+      shrinkWrap: true,
+      itemBuilder: (context, index) {
+        final applet = applets[index];
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: ListTile(
+            title: Text(
+              "ACTION: ${applet.ifCondition}",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text("REACTION: ${applet.thatCondition}"),
+            trailing: Icon(
+              applet.isOn ? Icons.check_circle : Icons.cancel,
+              color: applet.isOn ? Colors.green : Colors.red,
+            ),
+            onTap: () => showAppletDetails(applet),
+          ),
+        );
+      },
+    );
   }
 
-  int _selectedIndex = 0;
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  generateExpandedWidgets(BuildContext context, List<String> platforms) {
-    return platforms.map((platform) {
-      return Expanded(
-        child: Column(
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: Text(platform),
-                      content: Text('Call to API $platform'),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text('Close'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 217, 217, 217),
-                foregroundColor: const Color.fromARGB(255, 43, 42, 40),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                minimumSize: const Size(90, 90),
-                padding: const EdgeInsets.all(16),
-                elevation: 8,
-                shadowColor: Colors.black.withOpacity(0.5),
-              ),
-              child: Text(platform),
+  void showAppletDetails(Applet applet) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("More Information"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("User ID: ${applet.idUser}"),
+              Text("If Type: ${applet.ifType}"),
+              Text("That Type: ${applet.thatType}"),
+              Text("Created At: ${applet.createdAt}"),
+              Text("Updated At: ${applet.updatedAt}"),
+              Text("Status: ${applet.isOn ? 'On' : 'Off'}"),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
             ),
           ],
-        ),
-      );
-    }).toList();
+        );
+      },
+    );
+  }
+
+  void disconnection() {
+    const securestorage = FlutterSecureStorage();
+    securestorage.delete(key: 'token');
+    Navigator.of(context).restorablePushReplacementNamed('/login');
+  }
+
+  void disconnect() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Disconnect"),
+          content: const Text("Are you sure you want to disconnect?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                disconnection();
+              },
+              child: const Text('Disconnect'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final List<String> platforms = callFunctionServices();
-
     return Scaffold(
-    appBar: const CustomAppBar(),
+      appBar: const CustomAppBar(),
+      bottomNavigationBar: CustomNavBar(
+        currentIndex: 0,
+        onTap: (index) {
+          if (index == 2) {
+            disconnect();
+          }
+          print("Tapped index: $index");
+        },
+      ),
       body: Container(
-        color: Colors.white,
-        alignment: Alignment.topCenter,
+        padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisSize: MainAxisSize.max,
           children: [
-            Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              const SizedBox(height: 80),
-              const Text(
-                'Explore',
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                'Automate to save time and get more done',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 40),
-              ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return const AlertDialog(
-                        title: Text('Action!'),
-                        content: Text('Bouton pressé!'),
-                      );
-                    },
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  fixedSize: const Size(317, 43),
-                  backgroundColor: const Color.fromARGB(255, 43, 42, 40),
-                  foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(48),
-                  ),
-                ),
-                child: const Text(
-                  'Start Today',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 60),
-              Row(
-                children: generateExpandedWidgets(context, platforms),
-              ),
-              const SizedBox(height: 40),
-              FutureBuilder<List<dynamic>>(
-                future: getApplets(),
+            const Text(
+              'Explore',
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Automate to save time and get more done',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 40),
+            Expanded(
+              child: FutureBuilder<List<Applet>>(
+                future: futureApplets,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
+                    return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return Text("Erreur : ${snapshot.error}");
+                    return Center(child: Text("Erreur : ${snapshot.error}"));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Text("Aucun applet trouvé");
+                    return const Center(child: Text("Aucun applet trouvé"));
                   } else {
-                    final applets = snapshot.data!;
-                    return Expanded(
-                      child: ListView.builder(
-                        itemCount: applets.length,
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) {
-                          final applet = applets[index];
-                          return ElevatedButton(
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: const Text("More information"),
-                                    content: Text(
-                                        'Status: ${applet['IsOn'] ? 'On' : 'Off'}'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text('Close'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    const Color.fromARGB(255, 217, 217, 217),
-                                foregroundColor:
-                                    const Color.fromARGB(255, 43, 42, 40),
-                                elevation: 8,
-                                shadowColor: Colors.black.withOpacity(0.5),
-                                alignment: Alignment.center),
-                            child: Text(
-                              "ACTION : ${applet['If']}\nREACTION : ${applet['That']}",
-                              textAlign: TextAlign.center,
-                            ),
-                          );
-                        },
-                      ),
-                    );
+                    return buildAppletsList(snapshot.data!);
                   }
                 },
               ),
-            ]),
+            ),
           ],
         ),
-      ),
-      bottomNavigationBar: CustomNavBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
       ),
     );
   }
 }
+
 
 
 class EntrySearch extends StatelessWidget {

@@ -5,33 +5,59 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-//HOTFIX FOR ANDROID REPLACE localhost by 10.0.2.2
+//HOTFIX FOR ANDROID REPLACE localhost by localhost
+
+class InitialTokenEvent extends AuthEvent {
+  final String token;
+  InitialTokenEvent(this.token);
+
+}
+
+void _onInitialToken(InitialTokenEvent event, Emitter<AuthState> emit, FlutterSecureStorage securestorage) async {
+  emit(AuthLoading());
+  try {
+    securestorage.write(key: 'token', value: event.token);
+    emit(AuthSuccess(event.token));
+  } catch (e) {
+    emit(AuthFailure(e.toString()));
+  }
+}
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final Dio dio = Dio();
+  final FlutterSecureStorage securestorage = const FlutterSecureStorage();
 
-  AuthBloc() : super(AuthInitial()) {
+  AuthBloc(String? initialToken) : super(AuthInitial()) {
     on<LoginEvent>(_onLogin);
     on<RegisterEvent>(_onRegister);
     on<GoogleLoginEvent>(_onGoogleLogin);
-    on<GitHubLoginEvent>(_onGitHubLogin);
+    on<InitialTokenEvent>((event, emit) => _onInitialToken(event, emit, securestorage));
+    if (initialToken != null) {
+      print('Token found');
+      add(InitialTokenEvent(initialToken));
+    } else {
+      print('No token');
+    }
   }
+  
   void _onGoogleLogin(GoogleLoginEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      String urlServer = 'http://10.0.2.2:8080/google/login';
+      String urlServer = 'http://localhost:8080/google/login';
       // if (!) urlServer = 'http://localhost:8080/google/login';
       final result = await Navigator.push(
         event.context,
         MaterialPageRoute(
           builder: (context) => const OAuthWebView(
-            initialUrl: 'http://10.0.2.2:8080/google/login',
+            initialUrl: 'http://localhost:8080/google/login',
           ),
         ),
       );
 
       if (result != null && result['token'] != null) {
+        securestorage.write(key: 'token', value: result['token']);
         emit(AuthSuccess(result['token']));
       } else {
         emit(AuthFailure('Google login failed'));
@@ -54,6 +80,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
 
       if (result != null && result['token'] != null) {
+        securestorage.write(key: 'token', value: result['token']);
         emit(AuthSuccess(result['token']));
       } else {
         emit(AuthFailure('GitHub login failed'));
@@ -70,6 +97,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         dotenv.env['API_LOGIN_URL']!,
         data: {'email': event.email, 'password': event.password},
       );
+      securestorage.write(key: 'token', value: response.data['token']);
       emit(AuthSuccess(response.data['token']));
     } catch (e) {
       emit(AuthFailure(e.toString()));
@@ -83,6 +111,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         dotenv.env['API_REGISTER_URL']!,
         data: {'email': event.email, 'password': event.password},
       );
+      securestorage.write(key: 'token', value: response.data['token']);
       emit(AuthSuccess(response.data['token']));
     } catch (e) {
       emit(AuthFailure(e.toString()));

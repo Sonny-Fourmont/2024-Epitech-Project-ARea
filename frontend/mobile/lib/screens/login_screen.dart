@@ -27,10 +27,8 @@ class LoginScreenState extends State<LoginScreen> {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(state.error)));
           }
-
-          // A retirer le ! en prod
           if (state is AuthSuccess) {
-            Navigator.pushReplacementNamed(context, '/home');
+            Navigator.pushReplacementNamed(context, '/home', arguments: state.token);
           }
         },
         child: BlocBuilder<AuthBloc, AuthState>(

@@ -49,9 +49,12 @@ class OAuthWebViewState extends State<OAuthWebView> {
             debugPrint('Params: $params');
           },
           onPageFinished: (String url) async  {
-            debugPrint('Page finished loading: $url');  
+            debugPrint('Page finished loading: $url'); 
+
+            if (url.contains('google/?state=state-token')) {
               Object response = await _controller.runJavaScriptReturningResult('document.body.innerText');
               String resStr = response.toString();
+              debugPrint("Response: $resStr");
               if (context.mounted) {
                 if (response != "") {
                   String token = resStr.substring(resStr.indexOf('token') + 8, resStr.indexOf('"}'));
@@ -62,6 +65,7 @@ class OAuthWebViewState extends State<OAuthWebView> {
                   Navigator.pop(context);
                 }
               }
+            }
           },
           onNavigationRequest: (NavigationRequest request) async {
             debugPrint('Navigating to: ${request.url}');
