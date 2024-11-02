@@ -24,7 +24,7 @@ func SpotifyLogin(c *gin.Context) (string, int) {
 	return url, http.StatusPermanentRedirect
 }
 
-func SpotifyLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
+func SpotifyLoggedIn(c *gin.Context) (string, int) {
 	var user models.User
 	var token models.Token
 
@@ -32,7 +32,7 @@ func SpotifyLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
 	userInfo, err := client.CurrentUser()
 	if err != nil {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
-		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
+		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
 
 	user.ID = primitive.NewObjectID()
@@ -54,11 +54,14 @@ func SpotifyLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
 	token.UpdatedAt = time.Now()
 	if !storage.CreateORUpdateUser(user) {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create user"})
-		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
+		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
 	if !storage.CreateORUpdateToken(token) {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create token"})
-		return primitive.NilObjectID, string(jsonResponseBytes), http.StatusInternalServerError
+		return string(jsonResponseBytes), http.StatusInternalServerError
 	}
-	return user.ID, "", http.StatusOK
+
+	var statusCode int
+	jsonResponseBytes, _ := json.Marshal(map[string]string{"message": "Spotify login successfully"})
+	return string(jsonResponseBytes), statusCode
 }

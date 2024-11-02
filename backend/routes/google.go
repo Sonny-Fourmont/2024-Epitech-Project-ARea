@@ -27,7 +27,11 @@ func GoogleLoggedIn(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(statusCode, gin.H{"token": token})
+	if statusCode == http.StatusOK {
+		c.Redirect(http.StatusPermanentRedirect, "http://localhost:3000/home?token="+token)
+	} else {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+	}
 }
 
 // GoogleLogin godoc
