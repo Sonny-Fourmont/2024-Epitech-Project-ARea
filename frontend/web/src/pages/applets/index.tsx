@@ -42,7 +42,7 @@ const AppletsSection = ({ applets }) => (
             <p className="text-xl mb-8">Connect your favorite apps to our service.</p>
         </section>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {applets.map((applet, index) => (
+            {applets.map((applet: any, index: any) => (
                 <AppletCard
                     key={index}
                     title={applet.title}
