@@ -6,6 +6,7 @@ import (
 	"area/storage"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -31,6 +32,9 @@ func AddApplet(c *gin.Context) (string, int) {
 		return string(jsonResponseBytes), http.StatusBadRequest
 	}
 	applet.ID_User = middlewares.GetClient(c)
+	applet.ID = primitive.NewObjectID()
+	applet.CreatedAt = time.Now()
+	applet.UpdatedAt = time.Now()
 	var status bool = storage.CreateApplet(applet)
 	if !status {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Failed to create applet"})
