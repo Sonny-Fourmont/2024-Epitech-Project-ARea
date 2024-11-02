@@ -25,28 +25,26 @@ func ExistApplet(applet models.Applet) bool {
 	return true
 }
 
-func CreateORUpdateApplet(newApplet models.Applet) bool {
-	if ExistApplet(newApplet) {
-		return UpdateApplet(newApplet)
-	}
-	return CreateApplet(newApplet)
-}
-
 func UpdateApplet(newApplet models.Applet) bool {
 	collection := DB.Collection("applets")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	oldApplet, status := GetApplet(newApplet.ID, newApplet.ID_User)
+	if !status {
+		return false
+	}
+
 	update := bson.M{
 		"$set": bson.M{
-			"user_id":    newApplet.ID_User,
-			"that_value": newApplet.That,
+			"user_id":    oldApplet.ID_User,
+			"that":       newApplet.That,
 			"that_type":  newApplet.ThatType,
-			"if_value":   newApplet.If,
+			"if":         newApplet.If,
 			"if_type":    newApplet.IfType,
 			"updated_at": time.Now(),
-			"created_at": newApplet.CreatedAt,
+			"created_at": oldApplet.CreatedAt,
 		},
 	}
 
@@ -60,6 +58,7 @@ func UpdateApplet(newApplet models.Applet) bool {
 
 func CreateApplet(newApplet models.Applet) bool {
 	collection := DB.Collection("applets")
+	newApplet.ID = primitive.NewObjectID()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -86,7 +85,21 @@ func DeleteApplet(applet models.Applet) bool {
 	return true
 }
 
-func GetApplet(userID string, ifType string, thatType string) models.Applet {
+func GetApplet(appletID primitive.ObjectID, userID primitive.ObjectID) (models.Applet, bool) {
+	collection := DB.Collection("applets")
+	var applet models.Applet
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err := collection.FindOne(ctx, bson.M{"_id": appletID}).Decode(&applet)
+	if err != nil {
+		return models.Applet{}, false
+	}
+	return applet, true
+}
+
+func GetAppletUserIfThat(userID string, ifType string, thatType string) models.Applet {
 	collection := DB.Collection("applets")
 	var applet models.Applet
 
