@@ -16,8 +16,6 @@ import (
 	"google.golang.org/api/option"
 )
 
-// NEEED TO BE FIX
-
 func getBodyEmail(emailID string, gmailService *gmail.Service) string {
 	gmailMessageResponse, err := gmailService.Users.Messages.Get("me", emailID).Format("RAW").Do()
 	if err != nil {
