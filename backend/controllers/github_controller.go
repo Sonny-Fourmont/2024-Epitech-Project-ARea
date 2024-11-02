@@ -58,7 +58,6 @@ func GithubLoggedIn(c *gin.Context) (primitive.ObjectID, string, int) {
 	token.TokenData = config.GithubToken
 	token.CreatedAt = time.Now()
 	token.UpdatedAt = time.Now()
-	token, err = utils.RefreshToken(token)
 	if err != nil {
 		return primitive.NilObjectID, err.Error(), http.StatusInternalServerError
 	}
