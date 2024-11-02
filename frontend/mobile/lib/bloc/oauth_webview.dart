@@ -18,6 +18,11 @@ class OAuthWebView extends StatefulWidget {
 class OAuthWebViewState extends State<OAuthWebView> {
   late final WebViewController _controller;
 
+  String cleanJson(String jsonString) {
+    String cleanedString = jsonString.replaceAll(r'\', '');
+    return cleanedString;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -48,16 +53,19 @@ class OAuthWebViewState extends State<OAuthWebView> {
             debugPrint('Page started loading: $url');
             debugPrint('Params: $params');
           },
-          onPageFinished: (String url) async  {
-            debugPrint('Page finished loading: $url'); 
+          onPageFinished: (String url) async {
+            debugPrint('Page finished loading: $url');
 
             if (url.contains('google/?state=state-token')) {
-              Object response = await _controller.runJavaScriptReturningResult('document.body.innerText');
+              Object response = await _controller
+                  .runJavaScriptReturningResult('document.body.innerText');
               String resStr = response.toString();
               debugPrint("Response: $resStr");
               if (context.mounted) {
                 if (response != "") {
-                  String token = resStr.substring(resStr.indexOf('token') + 8, resStr.indexOf('"}'));
+                  resStr = cleanJson(resStr);
+                  String token = resStr.substring(
+                      resStr.indexOf('token') + 8, resStr.indexOf('"}'));
                   // ignore: use_build_context_synchronously
                   Navigator.pop(context, {'token': token});
                 } else {

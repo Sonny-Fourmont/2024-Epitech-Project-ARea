@@ -94,7 +94,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       final response = await dio.post(
-        dotenv.env['API_LOGIN_URL']!,
+        '/users/login',
         data: {'email': event.email, 'password': event.password},
       );
       securestorage.write(key: 'token', value: response.data['token']);
@@ -108,7 +108,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       final response = await dio.post(
-        dotenv.env['API_REGISTER_URL']!,
+        '/users/register',
         data: {'email': event.email, 'password': event.password},
       );
       securestorage.write(key: 'token', value: response.data['token']);

@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"time"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -75,6 +76,8 @@ func LoginUser(c *gin.Context) (primitive.ObjectID, string, int) {
 	if err := c.ShouldBindJSON(&user); err != nil {
 		return primitive.NilObjectID, "Invalid JSON", http.StatusInternalServerError
 	}
+
+	fmt.Println("user email : <", user.Email, ">")
 
 	userDB, exists := storage.GetUserByEmail(user.Email)
 	if !exists {

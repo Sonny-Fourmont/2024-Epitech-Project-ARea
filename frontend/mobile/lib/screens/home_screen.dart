@@ -1,12 +1,13 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import '../component/appBar.dart';
 import '../component/navBar.dart';
-import '../component/searchBar.dart'; 
-
+import '../component/searchBar.dart';
+import 'create_screen.dart';
 
 class Applet {
   final String id;
@@ -73,27 +74,28 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<List<Applet>> fetchApplets() async {
     final apiAppletUrl = dotenv.env['API_APPLET_URL']!;
     final token = widget.token;
-    final response = await http.get(
-      Uri.parse(apiAppletUrl),
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
-    );
-  
+    final dio = Dio();
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    final response = await dio.get(apiAppletUrl);
+
     if (response.statusCode == 200) {
       try {
-        final decodedJson = json.decode(response.body);
+        final decodedJson = json.decode(response.data);
         if (decodedJson is String) {
           final jsonString = decodedJson;
           final Map<String, dynamic> jsonMap = json.decode(jsonString);
 
           final List<dynamic> appletArray = jsonMap['applet_array'];
 
-          return appletArray.map((appletJson) => Applet.fromJson(appletJson)).toList();
+          return appletArray
+              .map((appletJson) => Applet.fromJson(appletJson))
+              .toList();
         } else if (decodedJson is Map<String, dynamic>) {
           final List<dynamic> appletArray = decodedJson['applet_array'];
 
-          return appletArray.map((appletJson) => Applet.fromJson(appletJson)).toList();
+          return appletArray
+              .map((appletJson) => Applet.fromJson(appletJson))
+              .toList();
         } else {
           return [];
         }
@@ -103,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       throw Exception("Failed to load applets");
     }
-}
+  }
 
   Widget buildAppletsList(List<Applet> applets) {
     return ListView.builder(
@@ -245,78 +247,65 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-
-
 class EntrySearch extends StatelessWidget {
-  const EntrySearch({Key? key, required this.onSearchEntered})
-      : super(key: key);
+  const EntrySearch({Key? key}) : super(key: key);
 
-  final Function(String) onSearchEntered;
   @override
   Widget build(BuildContext context) {
     var padinputText = 14.0;
-    return Padding(
-      padding: const EdgeInsets.only(top: 112),
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: SizedBox(
-          height: 48,
-          width: 350,
-          child: Align(
-            alignment: Alignment.topLeft,
-            child: SizedBox(
-              height: 48,
-              width: 331,
-              child: Stack(
-                children: [
-                  Container(
-                    width: double.maxFinite,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 235, 233, 229),
-                      borderRadius: BorderRadius.circular(8),
+    return Align(
+      alignment: Alignment.topCenter,
+      child: SizedBox(
+        height: 48,
+        width: 350,
+        child: Align(
+          alignment: Alignment.topLeft,
+          child: SizedBox(
+            height: 48,
+            width: 331,
+            child: Stack(
+              children: [
+                Container(
+                  width: double.maxFinite,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 235, 233, 229),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: TextFormField(
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontFamily: 'Avenir Next',
+                      height: 1.25,
+                      color: Color.fromARGB(255, 43, 42, 40),
+                      fontWeight: FontWeight.w500,
                     ),
-                    child: TextFormField(
-                      style: const TextStyle(
+                    cursorColor: const Color.fromARGB(255, 254, 152, 97),
+                    decoration: InputDecoration(
+                      hintStyle: const TextStyle(
                         fontSize: 16,
-                        fontFamily: 'Avenir Next',
                         height: 1.25,
-                        color: Color.fromARGB(255, 43, 42, 40),
+                        fontFamily: 'Avenir Next',
+                        color: Color.fromARGB(255, 163, 159, 166),
                         fontWeight: FontWeight.w500,
                       ),
-                      cursorColor: const Color.fromARGB(255, 254, 152, 97),
-                      decoration: InputDecoration(
-                        // hintText: AppLocalizations.of(context).docs_search,
-                        hintStyle: const TextStyle(
-                          fontSize: 16,
-                          height: 1.25,
-                          fontFamily: 'Avenir Next',
-                          color: Color.fromARGB(255, 163, 159, 166),
-                          fontWeight: FontWeight.w500,
-                        ),
-                        border: InputBorder.none,
-                        isCollapsed: true,
-                        contentPadding:
-                            EdgeInsets.fromLTRB(44, padinputText, 0, 0),
-                      ),
-                      onChanged: (value) {
-                        onSearchEntered(value);
-                      },
+                      border: InputBorder.none,
+                      isCollapsed: true,
+                      contentPadding:
+                          EdgeInsets.fromLTRB(44, padinputText, 0, 0),
                     ),
+                    // onChanged: (value) {
+                    //   onSearchEntered(value);
+                    // },
                   ),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 12),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      // child: Image.asset(
-                      //   iconLoop,
-                      //   height: 24,
-                      //   width: 24,
-                      // ),
-                    ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(left: 12),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
