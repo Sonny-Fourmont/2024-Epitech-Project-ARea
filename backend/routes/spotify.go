@@ -2,6 +2,7 @@ package routes
 
 import (
 	"area/controllers"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,8 +16,12 @@ import (
 // @Failure 500 {object} map[string]string
 // @Router /spotify [get]
 func SpotifyLoggedIn(c *gin.Context) {
-	dataJSON, statusCode := controllers.SpotifyLoggedIn(c)
-	c.JSON(statusCode, dataJSON)
+	_, statusCode := controllers.SpotifyLoggedIn(c)
+	if statusCode == http.StatusOK {
+		c.Redirect(http.StatusPermanentRedirect, "http://localhost:3000/home")
+	} else {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+	}
 }
 
 // SpotifyLogin godoc
