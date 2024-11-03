@@ -47,7 +47,7 @@ class OAuthWebViewState extends State<OAuthWebView> {
         NavigationDelegate(
           onPageStarted: (String url) {
             debugPrint('Page started loading: $url');
-            if (url.contains('localhost')) {
+            if (Platform.isAndroid && url.contains('localhost')) {
               url = url.replaceAll('localhost', '10.0.2.2');
               _controller.loadRequest(Uri.parse(url));
               return;

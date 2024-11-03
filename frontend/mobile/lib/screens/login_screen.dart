@@ -1,6 +1,7 @@
 import 'package:area/screens/home_screen.dart';
 import 'package:area/screens/webview_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dio/dio.dart';
 
@@ -52,8 +53,9 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            const OAuthWebView(initialUrl: 'http://10.0.2.2:8080/google/login'),
+        builder: (context) => OAuthWebView(
+          initialUrl: dotenv.env['GOOGLE_LOGIN_URL'] ?? '',
+        ),
       ),
     );
   }
@@ -62,8 +64,9 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            const OAuthWebView(initialUrl: 'http://10.0.2.2:8080/github/login'),
+        builder: (context) => OAuthWebView(
+          initialUrl: dotenv.env['GITHUB_LOGIN_URL'] ?? '',
+        ),
       ),
     );
   }
