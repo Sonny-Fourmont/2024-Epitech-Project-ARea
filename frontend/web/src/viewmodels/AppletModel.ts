@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { BACKEND_URL } from 'config';
 
 export interface Applet {
@@ -33,7 +34,27 @@ export default function useAppletModel() {
         fetchApplets();
     }, []);
 
+    const createApplet = async (applet: Applet, router: ReturnType<typeof useRouter>) => {
+        const response = await fetch(`${BACKEND_URL}/applet/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `${localStorage.getItem('Authorization')}`,
+            },
+            body: JSON.stringify(applet),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to create applet');
+        }
+
+        const newApplet = await response.json();
+        setApplets([...applets, newApplet]);
+        router.push('/applets');
+    };
+
     return {
         applets,
+        createApplet,
     };
 }
