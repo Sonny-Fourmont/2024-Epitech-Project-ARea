@@ -19,7 +19,7 @@ import (
 func AzureLoggedIn(c *gin.Context) {
 	userId, errMsg, statusCode := controllers.AzureLoggedIn(c)
 	if errMsg != "" {
-		c.JSON(statusCode, errMsg)
+		c.JSON(statusCode, gin.H{"error": errMsg})
 		return
 	}
 	token, err := utils.GenerateJWT(userId)
