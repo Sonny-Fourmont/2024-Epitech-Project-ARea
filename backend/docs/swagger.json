@@ -645,6 +645,9 @@
                 },
                 "type": {
                     "type": "string"
+                },
+                "urlLogin": {
+                    "type": "string"
                 }
             }
         },

@@ -47,6 +47,8 @@ definitions:
         type: string
       type:
         type: string
+      urlLogin:
+        type: string
     type: object
   models.ServiceAvailable:
     properties:

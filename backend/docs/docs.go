@@ -656,6 +656,9 @@ const docTemplate = `{
                 },
                 "type": {
                     "type": "string"
+                },
+                "urlLogin": {
+                    "type": "string"
                 }
             }
         },
