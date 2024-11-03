@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:area/screens/login_screen.dart';
+import 'package:area/screens/newAppletScreen.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -169,7 +171,12 @@ class _HomeScreenState extends State<HomeScreen> {
   void disconnection() {
     const securestorage = FlutterSecureStorage();
     securestorage.delete(key: 'token');
-    Navigator.of(context).restorablePushReplacementNamed('/login');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LoginScreen(),
+      ),
+    );
   }
 
   void disconnect() {
@@ -244,12 +251,24 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const NewAppletScreen(),
+            ),
+          );
+        },
+        tooltip: 'Add New Applet',
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
 
 class EntrySearch extends StatelessWidget {
-  const EntrySearch({Key? key}) : super(key: key);
+  const EntrySearch({super.key});
 
   @override
   Widget build(BuildContext context) {
