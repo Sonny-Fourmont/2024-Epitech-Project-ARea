@@ -43,6 +43,7 @@ dependencies:
   webview_flutter_android: ^3.16.9
   webview_flutter_wkwebview: ^3.16.0
   http: ^1.2.2
+  flutter_secure_storage: ^9.2.2
 
 
 dev_dependencies:
