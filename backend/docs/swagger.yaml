@@ -43,7 +43,11 @@ definitions:
         type: array
       prettyName:
         type: string
+      tokenName:
+        type: string
       type:
+        type: string
+      urlLogin:
         type: string
     type: object
   models.ServiceAvailable:

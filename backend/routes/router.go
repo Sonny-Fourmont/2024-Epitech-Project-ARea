@@ -56,6 +56,7 @@ func ServiceRoutes(router *gin.Engine) {
 	serviceRoutes := router.Group("/services")
 	{
 		serviceRoutes.GET("/", getServiceAvailable)
+		serviceRoutes.GET("/:service", haveService, middlewares.VerifyToken)
 	}
 }
 

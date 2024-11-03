@@ -651,7 +651,13 @@ const docTemplate = `{
                 "prettyName": {
                     "type": "string"
                 },
+                "tokenName": {
+                    "type": "string"
+                },
                 "type": {
+                    "type": "string"
+                },
+                "urlLogin": {
                     "type": "string"
                 }
             }
