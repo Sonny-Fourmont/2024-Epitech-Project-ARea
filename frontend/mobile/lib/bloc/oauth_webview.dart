@@ -44,6 +44,7 @@ class OAuthWebViewState extends State<OAuthWebView> {
         : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15';
 
     _controller.setUserAgent(userAgent);
+    
 
     _controller
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
@@ -53,19 +54,15 @@ class OAuthWebViewState extends State<OAuthWebView> {
             debugPrint('Page started loading: $url');
             debugPrint('Params: $params');
           },
-          onPageFinished: (String url) async {
+           onPageFinished: (String url) async {
             debugPrint('Page finished loading: $url');
-
-            if (url.contains('google/?state=state-token')) {
-              Object response = await _controller
-                  .runJavaScriptReturningResult('document.body.innerText');
-              String resStr = response.toString();
-              debugPrint("Response: $resStr");
+            if (url.contains('3000/home')) {
+              final tokenPattern = RegExp(r'token=([^&]+)');
+              final tokenMatch = tokenPattern.firstMatch(url);
+              final String token = tokenMatch!.group(1)!;
+              debugPrint("token : $token");
               if (context.mounted) {
-                if (response != "") {
-                  resStr = cleanJson(resStr);
-                  String token = resStr.substring(
-                      resStr.indexOf('token') + 8, resStr.indexOf('"}'));
+                if (token != "") {
                   // ignore: use_build_context_synchronously
                   Navigator.pop(context, {'token': token});
                 } else {
@@ -77,6 +74,21 @@ class OAuthWebViewState extends State<OAuthWebView> {
           },
           onNavigationRequest: (NavigationRequest request) async {
             debugPrint('Navigating to: ${request.url}');
+            if (request.url.contains('3000/home')) {
+              final tokenPattern = RegExp(r'token=([^&]+)');
+              final tokenMatch = tokenPattern.firstMatch(request.url);
+              final String token = tokenMatch!.group(1)!;
+              debugPrint("token : $token");
+              if (context.mounted) {
+                if (token != "") {
+                  // ignore: use_build_context_synchronously
+                  Navigator.pop(context, {'token': token});
+                } else {
+                  // ignore: use_build_context_synchronously
+                  Navigator.pop(context);
+                }
+              }
+            }
             return NavigationDecision.navigate;
           },
         ),

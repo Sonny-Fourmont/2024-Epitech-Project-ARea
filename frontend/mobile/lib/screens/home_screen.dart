@@ -7,7 +7,6 @@ import 'package:http/http.dart' as http;
 import '../component/appBar.dart';
 import '../component/navBar.dart';
 import '../component/searchBar.dart';
-import 'create_screen.dart';
 
 class Applet {
   final String id;
@@ -75,6 +74,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final apiAppletUrl = dotenv.env['API_APPLET_URL']!;
     final token = widget.token;
     final dio = Dio();
+
+    print("Token: $token");
     dio.options.headers['Authorization'] = 'Bearer $token';
     final response = await dio.get(apiAppletUrl);
 
