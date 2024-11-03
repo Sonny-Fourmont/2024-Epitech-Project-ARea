@@ -22,12 +22,12 @@ func ServicesRoutes(router *gin.Engine) {
 		githubRoutes.GET("/", middlewares.CheckGithubToken, GithubLoggedIn)
 		githubRoutes.GET("/login", GithubLogin)
 	}
-	youtubeRoutes := router.Group("/youtube")
+	youtubeRoutes := router.Group("/youtube", middlewares.VerifyToken)
 	{
 		youtubeRoutes.GET("/", middlewares.CheckYoutubeCode, YoutubeLoggedIn)
 		youtubeRoutes.GET("/liked", YoutubeLogin)
 	}
-	spotifyRoutes := router.Group("/spotify")
+	spotifyRoutes := router.Group("/spotify", middlewares.VerifyToken)
 	{
 		spotifyRoutes.GET("/", middlewares.CheckSpotifyCode, SpotifyLoggedIn)
 		spotifyRoutes.GET("/login", SpotifyLogin)
