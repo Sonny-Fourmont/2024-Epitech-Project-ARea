@@ -18,7 +18,7 @@ export default function useAppletModel() {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+                    'Authorization': `${localStorage.getItem('token')}`,
                 },
             });
 

@@ -3,28 +3,10 @@
 import AppletCard from '../../components/AppletCard';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import useAppletModel from '@/viewmodels/AppletModel';
 
 const MyAppletsPage = () => {
-    const applets = [
-        {
-            title: "Google Calendar",
-            isConnected: true,
-            provider: "google",
-            icon: "images/logos/google.svg"
-        },
-        {
-            title: "GitHub",
-            isConnected: true,
-            provider: "github",
-            icon: "images/logos/github.svg"
-        },
-        {
-            title: "Spotify",
-            isConnected: true,
-            provider: "spotify",
-            icon: "images/logos/spotify-g.svg"
-        }
-    ];
+    const { applets } = useAppletModel();
 
     return (
         <div>
