@@ -1,3 +1,4 @@
+import 'package:area/screens/home_screen.dart';
 import 'package:area/screens/webview_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -28,63 +29,43 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final response = await dio.post(
         'http://localhost:8080/users/login',
-        data: {'email': emailController.text, 'password': passwordController.text},
+        data: {
+          'email': emailController.text,
+          'password': passwordController.text
+        },
       );
       await secureStorage.write(key: 'token', value: response.data['token']);
 
-
-      if (context.mounted) {
-          // ignore: use_build_context_synchronously
-       Navigator.pushReplacementNamed(context, '/home', arguments: response.data['token']);
+      if (mounted) {
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => HomeScreen(token: response.data['token'])));
       }
     } catch (e) {
       setState(() {
-        errorMessage = e.toString(); 
+        errorMessage = e.toString();
         isLoading = false;
       });
     }
   }
 
-  void googleLogin() async {
+  void googleLogin() {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const OAuthWebView(initialUrl: 'http://localhost:8080/google/login'),
+        builder: (context) =>
+            const OAuthWebView(initialUrl: 'http://10.0.2.2:8080/google/login'),
       ),
-    ).then((result) {
-      if (result != null && result['token'] != null) {
-        secureStorage.write(key: 'token', value: result['token']);
-        if (context.mounted) {
-          // ignore: use_build_context_synchronously
-          Navigator.pushReplacementNamed(context, '/home', arguments: result['token']);
-        }
-      } else {
-        setState(() {
-          errorMessage = 'Google login failed'; // Message d'erreur
-        });
-      }
-    });
+    );
   }
 
-  void githubLogin() async {
+  void githubLogin() {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const OAuthWebView(initialUrl: 'http://localhost:8080/github/login'),
+        builder: (context) =>
+            const OAuthWebView(initialUrl: 'http://10.0.2.2:8080/github/login'),
       ),
-    ).then((result) {
-      if (result != null && result['token'] != null) {
-        secureStorage.write(key: 'token', value: result['token']);
-        if (context.mounted) {
-          // ignore: use_build_context_synchronously
-          Navigator.pushReplacementNamed(context, '/home', arguments: result['token']);
-        }
-      } else {
-        setState(() {
-          errorMessage = 'GitHub login failed'; // Message d'erreur
-        });
-      }
-    });
+    );
   }
 
   @override

@@ -29,10 +29,12 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _loadInitialToken() async {
     const secureStorage = FlutterSecureStorage();
+
     initialToken = await secureStorage.read(key: 'token');
     print("Initial token is $initialToken");
+
     setState(() {
-      isLoading = false; 
+      isLoading = false;
     });
   }
 
@@ -40,6 +42,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return const MaterialApp(
+        debugShowCheckedModeBanner: false,
         home: Scaffold(
           body: Center(child: CircularProgressIndicator()),
         ),
@@ -49,11 +52,9 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Area',
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/home': (context) => HomeScreen(token: initialToken),
-      },
-      home: initialToken != null ? HomeScreen(token: initialToken) : const LoginScreen(),
+      home: initialToken != null
+          ? HomeScreen(token: initialToken)
+          : const LoginScreen(),
     );
   }
 }
