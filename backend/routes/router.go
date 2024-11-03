@@ -52,8 +52,16 @@ func AppletRoutes(router *gin.Engine) {
 	}
 }
 
+func ServiceRoutes(router *gin.Engine) {
+	serviceRoutes := router.Group("/services")
+	{
+		serviceRoutes.GET("/", getServiceAvailable)
+	}
+}
+
 func InitRoutes(router *gin.Engine) {
 	UserRoutes(router)
 	ServicesRoutes(router)
 	AppletRoutes(router)
+	ServiceRoutes(router)
 }

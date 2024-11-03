@@ -20,3 +20,15 @@ type Service struct {
 	Type     string             `bson:"type"`
 	Latest   []string           `bson:"latest"`
 }
+
+type IfThat struct {
+	Type        string
+	Options     []string
+	PrettyName  string
+	Description string
+}
+
+type ServiceAvailable struct {
+	If   []IfThat `bson:"if_list"`
+	That []IfThat `bson:"that_list"`
+}

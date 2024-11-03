@@ -12,7 +12,6 @@ import (
 )
 
 func StoreAndCheckResponse(appletID primitive.ObjectID, response []string, ifType string) bool {
-
 	service := GetServiceByAppletIDAndType(appletID, ifType)
 
 	if service.AppletID != primitive.NilObjectID {
