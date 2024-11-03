@@ -4,6 +4,7 @@ export default function useGoogleLogin() {
     const handleGoogleLogin = () => {
         window.location.href = `${BACKEND_URL}/google/login`;
     };
+
     return (
         handleGoogleLogin
     )

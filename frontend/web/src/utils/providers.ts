@@ -5,7 +5,7 @@ const ProviderColors = {
     microsoft: 'bg-orange-500 hover:bg-orange-600 text-white',
     linkedin: 'bg-orange-500 hover:bg-orange-600 text-white',
     facebook: 'bg-orange-600 hover:bg-orange-700 text-white',
-    spotify: 'bg-magenta-500 hover:bg-magenta-600 text-white',
+    spotify: 'bg-red-500 hover:bg-red-600 text-white',
     github: 'bg-yellow-800 hover:bg-yellow-900 text-white',
     default: 'bg-yellow-500 hover:bg-yellow-600 text-white'
 };
