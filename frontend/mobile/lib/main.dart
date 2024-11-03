@@ -1,9 +1,6 @@
-import 'package:area/bloc/auth_bloc.dart';
-import 'package:area/bloc/auth_state.dart';
 import 'package:area/screens/home_screen.dart';
 import 'package:area/screens/login_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -14,7 +11,7 @@ void main() async {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -49,27 +46,14 @@ class _MyAppState extends State<MyApp> {
       );
     }
 
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => AuthBloc(initialToken)),
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Area',
-        routes: {
-          '/login': (context) => const LoginScreen(),
-          '/home': (context) => HomeScreen(token: initialToken),
-        },
-        home: BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            if (state is AuthLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (state is AuthSuccess) return HomeScreen(token: state.token);
-            return const LoginScreen();
-          },
-        ),
-      ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Area',
+      routes: {
+        '/login': (context) => const LoginScreen(),
+        '/home': (context) => HomeScreen(token: initialToken),
+      },
+      home: initialToken != null ? HomeScreen(token: initialToken) : const LoginScreen(),
     );
   }
 }

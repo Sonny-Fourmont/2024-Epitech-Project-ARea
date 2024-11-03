@@ -122,8 +122,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           child: ListTile(
             title: Text(
-              "ACTION: ${applet.ifCondition}",
               style: const TextStyle(fontWeight: FontWeight.bold),
+              "ACTION: ${applet.ifCondition}",
             ),
             subtitle: Text("REACTION: ${applet.thatCondition}"),
             trailing: Icon(
