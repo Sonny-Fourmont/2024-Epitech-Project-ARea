@@ -330,10 +330,6 @@ class EntrySearch extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: CustomNavBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ),
     );
   }
 }
