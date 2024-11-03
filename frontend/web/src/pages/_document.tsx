@@ -5,7 +5,6 @@ class MyDocument extends Document {
         return (
             <Html lang="en">
                 <Head>
-                    {/* Add custom fonts, meta tags, etc. here */}
                 </Head>
                 <body>
                     <Main />

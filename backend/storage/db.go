@@ -1,12 +1,11 @@
 package storage
 
 import (
+	"area/config"
 	"context"
 	"log"
-	"os"
 	"time"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -25,12 +24,11 @@ func ResetDatabase() {
 }
 
 func ConnectDatabase() {
-	godotenv.Load()
-	mongoURI := os.Getenv("MONGODB_URI_DEV")
-	if os.Getenv("GIN_MODE") == "test" {
-		mongoURI = os.Getenv("MONGODB_URI_TEST")
+	mongoURI := config.ConfigDatabase.MongoDBUriDev
+	if config.ConfigGin.GinMode == "test" {
+		mongoURI = config.ConfigDatabase.MongoDBUriTest
 	}
-	dbName := os.Getenv("DB_NAME")
+	dbName := config.ConfigDatabase.DbName
 
 	clientOpts := options.Client().ApplyURI(mongoURI)
 	client, err := mongo.Connect(context.TODO(), clientOpts)

@@ -1,0 +1,466 @@
+definitions:
+  models.AddApplet:
+    properties:
+      if:
+        type: string
+      ifType:
+        type: string
+      isOn:
+        type: boolean
+      that:
+        type: string
+      thatType:
+        type: string
+    type: object
+  models.Applet:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      id_User:
+        type: string
+      if:
+        type: string
+      ifType:
+        type: string
+      isOn:
+        type: boolean
+      that:
+        type: string
+      thatType:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.IfThat:
+    properties:
+      description:
+        type: string
+      options:
+        items:
+          type: string
+        type: array
+      prettyName:
+        type: string
+      tokenName:
+        type: string
+      type:
+        type: string
+      urlLogin:
+        type: string
+    type: object
+  models.ServiceAvailable:
+    properties:
+      if:
+        items:
+          $ref: '#/definitions/models.IfThat'
+        type: array
+      that:
+        items:
+          $ref: '#/definitions/models.IfThat'
+        type: array
+    type: object
+  models.UpdateApplet:
+    properties:
+      id:
+        type: string
+      if:
+        type: string
+      ifType:
+        type: string
+      isOn:
+        type: boolean
+      that:
+        type: string
+      thatType:
+        type: string
+    type: object
+  models.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      password:
+        type: string
+      updatedAt:
+        type: string
+      username:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /applet:
+    get:
+      description: Retrieve all applets associated with the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of user applets
+          schema:
+            items:
+              $ref: '#/definitions/models.Applet'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get all applets for the user
+      tags:
+      - applets
+    patch:
+      consumes:
+      - application/json
+      description: Update a applet for the user
+      parameters:
+      - description: Applet data
+        in: body
+        name: applet
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateApplet'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a new applet
+      tags:
+      - applets
+    post:
+      consumes:
+      - application/json
+      description: Create a new applet for the user
+      parameters:
+      - description: Applet data
+        in: body
+        name: applet
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddApplet'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Add a new applet
+      tags:
+      - applets
+  /github:
+    get:
+      description: Handles Github login callback and issues a token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Github login callback
+      tags:
+      - github
+  /github/login:
+    get:
+      description: Initiates Github OAuth login process
+      responses:
+        "302":
+          description: Found
+      summary: Redirect to Github OAuth login
+      tags:
+      - github
+  /google:
+    get:
+      description: Handles Google login callback and issues a token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Google login callback
+      tags:
+      - google
+  /google/login:
+    get:
+      description: Initiates Google OAuth login process
+      responses:
+        "302":
+          description: Redirect
+      summary: Redirect to Google OAuth login
+      tags:
+      - google
+  /microsoft:
+    get:
+      description: Handles Azure login callback and issues a token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Azure login callback
+      tags:
+      - microsoft
+  /microsoft/login:
+    get:
+      description: Initiates Azure OAuth login process
+      responses:
+        "302":
+          description: Redirect
+      summary: Redirect to Azure OAuth login
+      tags:
+      - microsoft
+  /services:
+    get:
+      description: Get available services
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ServiceAvailable'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get available services
+      tags:
+      - services
+  /spotify:
+    get:
+      description: Handles Spotify login callback and issues a token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Spotify login callback
+      tags:
+      - spotify
+  /spotify/login:
+    get:
+      description: Initiates Spotify OAuth login process
+      responses:
+        "302":
+          description: Redirect
+      summary: Redirect to Spotify OAuth login
+      tags:
+      - spotify
+  /user:
+    get:
+      description: Get user information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get user information
+      tags:
+      - user
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: Login a user
+      parameters:
+      - description: User object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login a user
+      tags:
+      - user
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: User object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - user
+  /youtube:
+    get:
+      description: Handles Youtube login callback and retrieves latest liked videos
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Youtube login callback
+      tags:
+      - youtube
+  /youtube/login:
+    get:
+      description: Initiates Youtube OAuth login process
+      responses:
+        "302":
+          description: Found
+      summary: Redirect to Youtube OAuth login
+      tags:
+      - youtube
+swagger: "2.0"

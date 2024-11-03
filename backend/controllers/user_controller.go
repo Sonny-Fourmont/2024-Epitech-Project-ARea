@@ -1,28 +1,25 @@
 package controllers
 
 import (
+	"area/middlewares"
 	"area/models"
 	"area/storage"
 	"area/utils"
 	"context"
-	"log"
+	"encoding/json"
 	"net/http"
 	"time"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/go-github/github"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"golang.org/x/oauth2"
-	"google.golang.org/api/gmail/v1"
-	"google.golang.org/api/option"
 )
 
-func RegisterUser(c *gin.Context) {
+func RegisterUser(c *gin.Context) (primitive.ObjectID, string, int) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
-		return
+		return primitive.NilObjectID, "Invalid JSON", http.StatusInternalServerError
 	}
 
 	hashedPassword, _ := utils.GenerateHash(user.Password)
@@ -34,20 +31,18 @@ func RegisterUser(c *gin.Context) {
 
 	_, err := collection.InsertOne(ctx, user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
-		return
+		return primitive.NilObjectID, "Failed to create user", http.StatusInternalServerError
 	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "User registered successfully"})
+	return user.ID, "User registered successfully", http.StatusOK
 }
 
-func GetUser(c *gin.Context) {
+func GetUser(c *gin.Context) (string, int) {
 	id := c.Param("id")
 
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
-		return
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Invalid ID format"})
+		return string(jsonResponseBytes), http.StatusBadRequest
 	}
 
 	collection := storage.DB.Collection("users")
@@ -58,123 +53,39 @@ func GetUser(c *gin.Context) {
 
 	err = collection.FindOne(ctx, bson.M{"_id": objectID}).Decode(&user)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-		return
+		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "User not found"})
+		return string(jsonResponseBytes), http.StatusBadRequest
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	jsonResponseBytes, _ := json.Marshal(map[string]string{
 		"id":       user.ID.Hex(),
 		"username": user.Username,
 		"email":    user.Email,
 	})
+	return string(jsonResponseBytes), http.StatusOK
+
 }
 
-// ----- GOOGLE ----- //
-func GoogleLogin(c *gin.Context) {
-	utils.GoogleAuth()
-	if utils.GoogleOauth == nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "OAuth configuration is not initialized"})
-	}
-	url := utils.GoogleOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	c.Redirect(http.StatusPermanentRedirect, url)
+func GetMe(c *gin.Context) (string, int) {
+	return middlewares.GetClient(c).Hex(), http.StatusOK
 }
 
-func GoogleLoggedIn(c *gin.Context) {
+func LoginUser(c *gin.Context) (primitive.ObjectID, string, int) {
 	var user models.User
-	var tokens models.Token
 
-	httpClient := utils.GoogleOauth.Client(context.Background(), utils.GoogleToken)
-	gmail, _ := gmail.NewService(context.Background(), option.WithHTTPClient(httpClient))
-	googleUser, _ := gmail.Users.GetProfile("me").Do()
-
-	user.ID = primitive.NewObjectID()
-	user.Username = googleUser.EmailAddress
-	user.Email = googleUser.EmailAddress
-	hashedPassword, _ := utils.GenerateHash("googleAccount")
-	user.Password = hashedPassword
-	user.Services.GoogleEmail = googleUser.EmailAddress
-	tokens.ID = user.ID
-	tokens.Type = "Google"
-	tokens.TokenData = utils.GoogleToken
-
-	collection := storage.DB.Collection("users")
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	_, err := collection.InsertOne(ctx, user)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
-		return
-	}
-	log.Output(0, "User has been created!")
-
-	collection = storage.DB.Collection("tokens")
-	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	_, err = collection.InsertOne(ctx, tokens)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
-		return
-	}
-	log.Output(0, "Refresh token has been created!")
-
-	c.JSON(http.StatusOK, utils.GoogleToken)
-}
-
-// ----- GITHUB ----- //
-func GithubLogin(c *gin.Context) {
-	utils.GithubAuth()
-	if utils.GithubOauth == nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "OAuth configuration is not initialized"})
-	}
-	url := utils.GithubOauth.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	c.Redirect(http.StatusPermanentRedirect, url)
-}
-
-func GithubLoggedIn(c *gin.Context) {
-	var user models.User
-	var tokens models.Token
-
-	httpClient := utils.GithubOauth.Client(context.Background(), utils.GithubToken)
-	githubClient := github.NewClient(httpClient)
-	userInfo, _, err := githubClient.Users.Get(c, "")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
-		return
+	if err := c.ShouldBindJSON(&user); err != nil {
+		return primitive.NilObjectID, "Invalid JSON", http.StatusInternalServerError
 	}
 
-	user.ID = primitive.NewObjectID()
-	user.Username = *userInfo.Name
-	user.Email = *userInfo.Email
-	hashedPassword, _ := utils.GenerateHash("githubAccount")
-	user.Password = hashedPassword
-	user.Services.GithubEmail = *userInfo.Email
-	tokens.ID = user.ID
-	tokens.Type = "Github"
-	tokens.TokenData = utils.GithubToken
+	fmt.Println("user email : <", user.Email, ">")
 
-	collection := storage.DB.Collection("users")
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	_, err = collection.InsertOne(ctx, user)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
-		return
+	userDB, exists := storage.GetUserByEmail(user.Email)
+	if !exists {
+		return primitive.NilObjectID, "Failed to login user", http.StatusBadRequest
 	}
-	log.Output(0, "User has been created!")
-
-	collection = storage.DB.Collection("tokens")
-	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	_, err = collection.InsertOne(ctx, tokens)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
-		return
+	if !utils.CheckHashPassword(user.Password, userDB.Password) {
+		return primitive.NilObjectID, "Failed to login user", http.StatusBadRequest
 	}
-	log.Output(0, "Token has been created!")
 
-	c.JSON(http.StatusOK, utils.GithubToken)
+	return userDB.ID, "User login successfully", http.StatusOK
 }

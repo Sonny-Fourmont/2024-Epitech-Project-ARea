@@ -2,25 +2,39 @@ package main
 
 import (
 	"log"
-	"os"
+	"time"
 
-	api "area/api"
+	"area/config"
+	"area/routes"
+	"area/services"
 	storage "area/storage"
 
+	_ "area/docs"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
+	config.LoadConfig()
 	storage.ConnectDatabase()
 
 	router := gin.Default()
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+	corsConfig.AllowMethods = []string{"POST", "GET", "PUT", "DELETE"}
+	corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "Accept", "User-Agent"}
+	corsConfig.AllowCredentials = true
+	corsConfig.MaxAge = 12 * time.Hour
+	router.Use(cors.New(corsConfig))
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	routes.InitRoutes(router)
 
-	api.InitRoutes(router)
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+	port := config.ConfigGin.Port
 	log.Printf("Starting server on port %s...", port)
+	go services.RunCron()
+
 	router.Run(":" + port)
 }
