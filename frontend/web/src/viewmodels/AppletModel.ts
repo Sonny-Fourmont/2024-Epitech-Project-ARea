@@ -14,11 +14,11 @@ export default function useAppletModel() {
 
     useEffect(() => {
         const fetchApplets = async () => {
-            const response = await fetch(`${BACKEND_URL}/applet`, {
+            const response = await fetch(`${BACKEND_URL}/applet/`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `${localStorage.getItem('token')}`,
+                    'Authorization': `${localStorage.getItem('Authorization')}`,
                 },
             });
 
