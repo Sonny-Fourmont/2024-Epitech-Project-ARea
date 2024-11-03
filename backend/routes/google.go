@@ -27,14 +27,18 @@ func GoogleLoggedIn(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(statusCode, gin.H{"token": token})
+	if statusCode == http.StatusOK {
+		c.Redirect(http.StatusPermanentRedirect, "http://localhost:3000/home?token="+token)
+	} else {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+	}
 }
 
 // GoogleLogin godoc
 // @Summary Redirect to Google OAuth login
 // @Description Initiates Google OAuth login process
 // @Tags google
-// @Success 302
+// @Success 302 "Redirect"
 // @Router /google/login [get]
 func GoogleLogin(c *gin.Context) {
 	url, statusCode := controllers.GoogleLogin(c)

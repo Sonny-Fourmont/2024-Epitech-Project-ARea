@@ -45,7 +45,7 @@ func CreateORUpdateService(newService models.Service) bool {
 	return CreateService(newService)
 }
 
-func UpdateService(newService models.Service) bool {
+func UpdateService(service models.Service) bool {
 	collection := DB.Collection("services")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -53,12 +53,12 @@ func UpdateService(newService models.Service) bool {
 
 	update := bson.M{
 		"$set": bson.M{
-			"applet_id": newService.AppletID,
-			"type":      newService.Type,
-			"latest":    newService.Latest,
+			"applet_id": service.AppletID,
+			"type":      service.Type,
+			"latest":    service.Latest,
 		},
 	}
-	_, err := collection.UpdateOne(ctx, bson.M{"applet_id": newService.AppletID, "type": newService.Type}, update)
+	_, err := collection.UpdateOne(ctx, bson.M{"applet_id": service.AppletID, "type": service.Type}, update)
 	if err != nil {
 		log.Printf("Error while updating service: %v", err)
 		return false
@@ -92,6 +92,20 @@ func DeleteService(service models.Service) bool {
 		return false
 	}
 	return true
+}
+
+func GetService(serviceID primitive.ObjectID) (models.Service, bool) {
+	collection := DB.Collection("services")
+	var service models.Service
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err := collection.FindOne(ctx, bson.M{"_id": serviceID}).Decode(&service)
+	if err != nil {
+		return models.Service{}, false
+	}
+	return service, true
 }
 
 func GetServiceByAppletIDAndType(appletID primitive.ObjectID, serviceType string) models.Service {
