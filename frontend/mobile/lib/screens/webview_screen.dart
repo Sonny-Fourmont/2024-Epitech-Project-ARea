@@ -1,7 +1,8 @@
 import 'dart:io';
-import 'dart:math';
-
+import 'package:area/screens/home_screen.dart';
+import 'package:area/screens/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
@@ -17,13 +18,13 @@ class OAuthWebView extends StatefulWidget {
 
 class OAuthWebViewState extends State<OAuthWebView> {
   late final WebViewController _controller;
-
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
   @override
   void initState() {
     super.initState();
 
+    // Configure the WebView for Android or iOS
     late final PlatformWebViewControllerCreationParams params;
-
     if (WebViewPlatform.instance is WebKitWebViewPlatform) {
       params = WebKitWebViewControllerCreationParams(
         allowsInlineMediaPlayback: true,
@@ -46,25 +47,32 @@ class OAuthWebViewState extends State<OAuthWebView> {
         NavigationDelegate(
           onPageStarted: (String url) {
             debugPrint('Page started loading: $url');
-            debugPrint('Params: $params');
-          },
-          onPageFinished: (String url) async  {
-            debugPrint('Page finished loading: $url');  
-              Object response = await _controller.runJavaScriptReturningResult('document.body.innerText');
-              String resStr = response.toString();
-              if (context.mounted) {
-                if (response != "") {
-                  String token = resStr.substring(resStr.indexOf('token') + 8, resStr.indexOf('"}'));
-                  // ignore: use_build_context_synchronously
-                  Navigator.pop(context, {'token': token});
-                } else {
-                  // ignore: use_build_context_synchronously
-                  Navigator.pop(context);
-                }
-              }
+            if (Platform.isAndroid && url.contains('localhost')) {
+              url = url.replaceAll('localhost', '10.0.2.2');
+              _controller.loadRequest(Uri.parse(url));
+              return;
+            }
           },
           onNavigationRequest: (NavigationRequest request) async {
             debugPrint('Navigating to: ${request.url}');
+            if (request.url.contains('3000/home')) {
+              final tokenPattern = RegExp(r'token=([^&]+)');
+              final tokenMatch = tokenPattern.firstMatch(request.url);
+              final String token = tokenMatch?.group(1) ?? "";
+              debugPrint("token : $token");
+
+              if (token.isNotEmpty) {
+                await secureStorage.write(key: 'token', value: token);
+                if (mounted) {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (context) => HomeScreen(token: token)));
+                }
+              } else {
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => const LoginScreen()));
+              }
+              return NavigationDecision.prevent;
+            }
             return NavigationDecision.navigate;
           },
         ),
