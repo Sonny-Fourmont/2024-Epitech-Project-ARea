@@ -1,9 +1,17 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import NavbarButton from "./NavbarButton";
 
 const Navbar: React.FC = () => {
     const router = useRouter();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        const authToken = localStorage.getItem("Authorization");
+        if (authToken) {
+            setIsLoggedIn(true);
+        }
+    }, []);
 
     const handleNavigation = (path: string) => {
         router.push(path);
@@ -27,16 +35,23 @@ const Navbar: React.FC = () => {
     return (
         <div className="flex justify-center items-start">
             <div className="bg-buttonColor w-full flex justify-between items-center">
-                <div className="flex- flex justify-center">
+                <div className="flex justify-center">
                     {renderNavButtons()}
                 </div>
-                <NavbarButton
-                    text="Login"
-                    onClick={() => handleNavigation("/login")}
-                />
+                {isLoggedIn ? (
+                    <NavbarButton
+                        text="Profile"
+                        onClick={() => handleNavigation("/profile")}
+                    />
+                ) : (
+                    <NavbarButton
+                        text="Login"
+                        onClick={() => handleNavigation("/login")}
+                    />
+                )}
             </div>
         </div>
     );
-}
+};
 
 export default Navbar;
