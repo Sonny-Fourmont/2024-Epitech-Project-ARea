@@ -1,10 +1,22 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { useRouter } from 'next/router';
 
 const HomePage: React.FC = () => {
+    const router = useRouter()
+
+    useEffect(() => {
+        const { token } = router.query;
+
+        if (token) {
+            localStorage.setItem("Authorization", `Bearer ${token}`);
+            router.replace(router.pathname, undefined, { shallow: true });
+        }
+    }, [router.query]);
+
     return (
         <div>
             <Navbar />
