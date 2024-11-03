@@ -305,6 +305,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/services": {
+            "get": {
+                "description": "Get available services",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "services"
+                ],
+                "summary": "Get available services",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ServiceAvailable"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/spotify": {
             "get": {
                 "description": "Handles Spotify login callback and issues a token",
@@ -604,6 +633,43 @@ const docTemplate = `{
                 },
                 "updatedAt": {
                     "type": "string"
+                }
+            }
+        },
+        "models.IfThat": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "prettyName": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ServiceAvailable": {
+            "type": "object",
+            "properties": {
+                "if": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.IfThat"
+                    }
+                },
+                "that": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.IfThat"
+                    }
                 }
             }
         },

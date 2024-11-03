@@ -33,6 +33,30 @@ definitions:
       updatedAt:
         type: string
     type: object
+  models.IfThat:
+    properties:
+      description:
+        type: string
+      options:
+        items:
+          type: string
+        type: array
+      prettyName:
+        type: string
+      type:
+        type: string
+    type: object
+  models.ServiceAvailable:
+    properties:
+      if:
+        items:
+          $ref: '#/definitions/models.IfThat'
+        type: array
+      that:
+        items:
+          $ref: '#/definitions/models.IfThat'
+        type: array
+    type: object
   models.UpdateApplet:
     properties:
       id:
@@ -255,6 +279,25 @@ paths:
       summary: Redirect to Azure OAuth login
       tags:
       - microsoft
+  /services:
+    get:
+      description: Get available services
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ServiceAvailable'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get available services
+      tags:
+      - services
   /spotify:
     get:
       description: Handles Spotify login callback and issues a token
