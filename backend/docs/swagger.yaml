@@ -43,6 +43,8 @@ definitions:
         type: array
       prettyName:
         type: string
+      tokenName:
+        type: string
       type:
         type: string
     type: object

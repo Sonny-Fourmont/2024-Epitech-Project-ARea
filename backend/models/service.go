@@ -26,6 +26,7 @@ type IfThat struct {
 	Options     []string
 	PrettyName  string
 	Description string
+	TokenName   string
 }
 
 type ServiceAvailable struct {
