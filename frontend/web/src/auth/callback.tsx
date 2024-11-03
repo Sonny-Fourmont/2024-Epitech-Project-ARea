@@ -8,7 +8,7 @@ const AuthCallback = () => {
     useEffect(() => {
         if (isReady && query.token) {
             const token = query.token as string;
-            localStorage.setItem("authToken", token);
+            localStorage.setItem("Authorization", `Bearer ${token}`);
             router.replace("/home");
         }
     }, [isReady, query.token, router]);
