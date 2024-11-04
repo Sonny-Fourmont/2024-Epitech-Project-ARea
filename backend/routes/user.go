@@ -20,18 +20,13 @@ import (
 // @Failure 500 {object} map[string]string
 // @Router /user/register [post]
 func RegisterUser(c *gin.Context) {
-	userID, resp, statusCode := controllers.RegisterUser(c)
+	_, resp, statusCode := controllers.RegisterUser(c)
 	if statusCode == http.StatusInternalServerError {
 		c.JSON(statusCode, gin.H{"error": resp})
 		return
 	}
-	token, err := utils.GenerateJWT(userID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
 	if statusCode == http.StatusOK {
-		c.Redirect(http.StatusPermanentRedirect, "http://localhost:8081/home?token="+token)
+		c.Status(http.StatusOK)
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 	}
