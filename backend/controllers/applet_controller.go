@@ -27,10 +27,12 @@ func GetApplets(c *gin.Context) (string, int) {
 // Require Token Middleware
 func AddApplet(c *gin.Context) (string, int) {
 	var applet models.Applet
+
 	if err := c.ShouldBindJSON(&applet); err != nil {
 		jsonResponseBytes, _ := json.Marshal(map[string]string{"error": "Invalid JSON"})
 		return string(jsonResponseBytes), http.StatusBadRequest
 	}
+
 	applet.ID_User = middlewares.GetClient(c)
 	applet.ID = primitive.NewObjectID()
 	applet.CreatedAt = time.Now()

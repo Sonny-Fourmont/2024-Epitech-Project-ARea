@@ -16,15 +16,15 @@ class CustomNavBar extends StatelessWidget {
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.insert_drive_file, size: 30),
-          label: 'Create Applet',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.calendar_today, size: 30),
           label: 'My Applet',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.account_circle, size: 30),
-          label: 'Account',
+          icon: Icon(Icons.calendar_today, size: 30),
+          label: 'Create Applet',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.power_settings_new, size: 30),
+          label: 'Disconnect',
         ),
       ],
       currentIndex: currentIndex,

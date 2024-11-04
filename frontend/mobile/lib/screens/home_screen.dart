@@ -35,15 +35,15 @@ class Applet {
 
   factory Applet.fromJson(Map<String, dynamic> json) {
     return Applet(
-      id: json['ID'],
-      idUser: json['ID_User'],
-      createdAt: DateTime.parse(json['CreatedAt']),
-      updatedAt: DateTime.parse(json['UpdatedAt']),
-      isOn: json['IsOn'],
-      ifCondition: json['If'],
-      thatCondition: json['That'],
-      ifType: json['IfType'],
-      thatType: json['ThatType'],
+      id: json['id'],
+      idUser: json['user_id'],
+      createdAt: DateTime.parse(json['created_at']),
+      updatedAt: DateTime.parse(json['updated_at']),
+      isOn: json['is_on'],
+      ifCondition: json['if'],
+      thatCondition: json['that'],
+      ifType: json['if_type'],
+      thatType: json['that_type'],
     );
   }
 }
@@ -77,10 +77,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final token = widget.token;
     final dio = Dio();
 
-    print("Token: $token");
     dio.options.headers['Authorization'] = 'Bearer $token';
     final response = await dio.get(apiAppletUrl);
-
     if (response.statusCode == 200) {
       try {
         final decodedJson = json.decode(response.data);
@@ -204,6 +202,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void createApplet() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NewAppletScreen(token: widget.token!,),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -213,8 +220,9 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: (index) {
           if (index == 2) {
             disconnect();
+          } else if (index == 1) {
+            createApplet();
           }
-          print("Tapped index: $index");
         },
       ),
       body: Container(
@@ -251,18 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const NewAppletScreen(),
-            ),
-          );
-        },
-        tooltip: 'Add New Applet',
-        child: const Icon(Icons.add),
-      ),
+      
     );
   }
 }
@@ -314,9 +311,6 @@ class EntrySearch extends StatelessWidget {
                       contentPadding:
                           EdgeInsets.fromLTRB(44, padinputText, 0, 0),
                     ),
-                    // onChanged: (value) {
-                    //   onSearchEntered(value);
-                    // },
                   ),
                 ),
                 const Padding(

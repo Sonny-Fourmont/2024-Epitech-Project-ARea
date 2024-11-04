@@ -23,7 +23,6 @@ class OAuthWebViewState extends State<OAuthWebView> {
   void initState() {
     super.initState();
 
-    // Configure the WebView for Android or iOS
     late final PlatformWebViewControllerCreationParams params;
     if (WebViewPlatform.instance is WebKitWebViewPlatform) {
       params = WebKitWebViewControllerCreationParams(
@@ -46,7 +45,7 @@ class OAuthWebViewState extends State<OAuthWebView> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageStarted: (String url) {
-            debugPrint('Page started loading: $url');
+
             if (Platform.isAndroid && url.contains('localhost')) {
               url = url.replaceAll('localhost', '10.0.2.2');
               _controller.loadRequest(Uri.parse(url));
@@ -54,12 +53,10 @@ class OAuthWebViewState extends State<OAuthWebView> {
             }
           },
           onNavigationRequest: (NavigationRequest request) async {
-            debugPrint('Navigating to: ${request.url}');
             if (request.url.contains('3000/home')) {
               final tokenPattern = RegExp(r'token=([^&]+)');
               final tokenMatch = tokenPattern.firstMatch(request.url);
               final String token = tokenMatch?.group(1) ?? "";
-              debugPrint("token : $token");
 
               if (token.isNotEmpty) {
                 await secureStorage.write(key: 'token', value: token);

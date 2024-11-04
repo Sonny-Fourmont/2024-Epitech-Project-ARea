@@ -20,7 +20,6 @@ class CustomSearchBar extends StatelessWidget {
           fillColor: Colors.grey[200],
         ),
         onChanged: (value) {
-          print('Recherche : $value');
         },
       ),
     );
