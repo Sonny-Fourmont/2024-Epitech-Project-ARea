@@ -60,9 +60,14 @@ func ServiceRoutes(router *gin.Engine) {
 	}
 }
 
+func AboutRoute(router *gin.Engine) {
+	router.GET("/about.json", AboutJson)
+}
+
 func InitRoutes(router *gin.Engine) {
 	UserRoutes(router)
 	ServicesRoutes(router)
 	AppletRoutes(router)
 	ServiceRoutes(router)
+	AboutRoute(router)
 }
