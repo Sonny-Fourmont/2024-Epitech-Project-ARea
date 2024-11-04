@@ -48,4 +48,4 @@ RUN flutter pub get
 RUN flutter build apk --release
 
 # Copy the APK to a known location for easy retrieval
-RUN cp /app/build/app/outputs/flutter-apk/app-release.apk /app/app-release.apk
+RUN cp /app/build/app/outputs/flutter-apk/app-release.apk ../../app-release.apk
