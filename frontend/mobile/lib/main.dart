@@ -14,10 +14,10 @@ class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  _MyAppState createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   String? initialToken;
   bool isLoading = true;
 
@@ -31,7 +31,6 @@ class _MyAppState extends State<MyApp> {
     const secureStorage = FlutterSecureStorage();
 
     initialToken = await secureStorage.read(key: 'token');
-    print("Initial token is $initialToken");
 
     setState(() {
       isLoading = false;

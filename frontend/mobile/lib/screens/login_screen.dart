@@ -29,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await dio.post(
-        'http://localhost:8080/users/login',
+        dotenv.env['API_LOGIN_URL'] ?? 'http://localhost:8080/login',
         data: {
           'email': emailController.text,
           'password': passwordController.text
@@ -54,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => OAuthWebView(
-          initialUrl: dotenv.env['GOOGLE_LOGIN_URL'] ?? '',
+          initialUrl: dotenv.env['GOOGLE_LOGIN_URL'] ?? 'https://localhost:8080/google/login',
         ),
       ),
     );
@@ -65,7 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => OAuthWebView(
-          initialUrl: dotenv.env['GITHUB_LOGIN_URL'] ?? '',
+          initialUrl: dotenv.env['GITHUB_LOGIN_URL'] ?? 'https://localhost:8080/github/login',
         ),
       ),
     );

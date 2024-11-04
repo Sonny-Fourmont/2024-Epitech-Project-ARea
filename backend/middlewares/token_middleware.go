@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"area/utils"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -63,6 +64,7 @@ func VerifyToken(c *gin.Context) {
 	if id_client == "" {
 		c.JSON(http.StatusInternalServerError, "Failed to get client")
 	}
+	fmt.Println("good : ", id_client)
 	c.Set("id_client", id_client)
 	c.Next()
 }

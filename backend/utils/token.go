@@ -14,6 +14,10 @@ import (
 func RefreshToken(token models.Token) (models.Token, error) {
 	var DataOauth *oauth2.Config
 
+	if (token == models.Token{}) {
+		return token, fmt.Errorf("token is nil")
+	}
+
 	if token.TokenData.Expiry.After(time.Now()) {
 		return token, nil
 	}
