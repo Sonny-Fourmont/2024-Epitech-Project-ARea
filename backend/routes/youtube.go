@@ -18,7 +18,7 @@ import (
 func YoutubeLoggedIn(c *gin.Context) {
 	_, statusCode := controllers.YoutubeLoggedIn(c)
 	if statusCode == http.StatusOK {
-		c.Redirect(http.StatusPermanentRedirect, "http://localhost:3000/home")
+		c.Redirect(http.StatusPermanentRedirect, "http://localhost:8081/home")
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 	}
