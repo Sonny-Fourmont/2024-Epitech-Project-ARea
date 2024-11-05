@@ -18,7 +18,7 @@ import (
 func SpotifyLoggedIn(c *gin.Context) {
 	_, statusCode := controllers.SpotifyLoggedIn(c)
 	if statusCode == http.StatusOK {
-		c.Redirect(http.StatusPermanentRedirect, "http://localhost:3000/home")
+		c.Redirect(http.StatusPermanentRedirect, "http://localhost:8081/home")
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 	}

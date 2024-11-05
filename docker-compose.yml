@@ -18,15 +18,11 @@ services:
       - "3001:3001"
     env_file:
       - ./frontend/mobile/.env
-    environment:
-      - NODE_ENV=production
     restart: "no"
 
   frontend_web:
     build:
       context: ./frontend/web
     ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
+      - "8081:8081"
     restart: "no"
