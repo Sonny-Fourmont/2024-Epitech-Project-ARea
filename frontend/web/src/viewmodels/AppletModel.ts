@@ -27,8 +27,8 @@ export default function useAppletModel() {
                 throw new Error('Failed to fetch applets');
             }
 
-            const appletsData = await response.json();
-            setApplets(appletsData);
+            const appletsData = JSON.parse(await response.json())
+            setApplets(appletsData.applet_array);
         };
 
         fetchApplets();
